@@ -1,3 +1,8 @@
+export type EmployeeBenefit = {
+  id: string;
+  value?: number | string;
+};
+
 export type Employee = {
   id: string;
   name: string;
@@ -14,7 +19,7 @@ export type Employee = {
   bank: string;
   bankAgency: string;
   bankAccount: string;
-  benefits: string[];
+  benefits: EmployeeBenefit[];
 };
 
 export type AbsenceRequest = {

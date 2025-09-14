@@ -1,4 +1,4 @@
-import { Employee, AbsenceRequest, Document, Payslip, Benefit } from '@/types';
+import { Employee, AbsenceRequest, Document, Payslip } from '@/types';
 
 export const employees: Employee[] = [
   {
@@ -16,7 +16,13 @@ export const employees: Employee[] = [
     bank: 'Banco Vision',
     bankAgency: '0001',
     bankAccount: '12345-6',
-    benefits: ['plano_saude', 'plano_odontologico', 'vale_refeicao', 'seguro_vida', 'previdencia_privada'],
+    benefits: [
+        {id: 'plano_saude'}, 
+        {id: 'plano_odontologico'}, 
+        {id: 'vale_refeicao', value: 950}, 
+        {id: 'seguro_vida'}, 
+        {id: 'previdencia_privada'}
+    ],
   },
   {
     id: '2',
@@ -34,7 +40,11 @@ export const employees: Employee[] = [
     bank: 'Banco Vision',
     bankAgency: '0001',
     bankAccount: '23456-7',
-    benefits: ['plano_saude', 'plano_odontologico', 'vale_refeicao'],
+    benefits: [
+        {id: 'plano_saude'},
+        {id: 'plano_odontologico'},
+        {id: 'vale_refeicao', value: 950},
+    ],
   },
   {
     id: '3',
@@ -52,7 +62,12 @@ export const employees: Employee[] = [
     bank: 'Banco Vision',
     bankAgency: '0001',
     bankAccount: '34567-8',
-    benefits: ['plano_saude', 'vale_transporte', 'vale_refeicao', 'auxilio_creche'],
+    benefits: [
+        {id: 'plano_saude'},
+        {id: 'vale_transporte'},
+        {id: 'vale_refeicao', value: 800},
+        {id: 'auxilio_creche'},
+    ],
   },
   {
     id: '4',
@@ -70,7 +85,7 @@ export const employees: Employee[] = [
     bank: 'Banco Vision',
     bankAgency: '0001',
     bankAccount: '45678-9',
-    benefits: ['plano_saude', 'vale_refeicao'],
+    benefits: [{id: 'plano_saude'}, {id: 'vale_refeicao', value: 800}],
   },
   {
     id: '5',
@@ -88,7 +103,7 @@ export const employees: Employee[] = [
     bank: 'Banco Vision',
     bankAgency: '0001',
     bankAccount: '56789-0',
-    benefits: ['plano_saude', 'seguro_vida'],
+    benefits: [{id: 'plano_saude'}, {id: 'seguro_vida'}],
   },
   {
     id: '6',
@@ -106,7 +121,7 @@ export const employees: Employee[] = [
     bank: 'Banco Vision',
     bankAgency: '0001',
     bankAccount: '67890-1',
-    benefits: ['vale_refeicao', 'vale_transporte'],
+    benefits: [{id: 'vale_refeicao', value: 750}, {id: 'vale_transporte'}],
   },
   {
     id: '7',
@@ -124,7 +139,7 @@ export const employees: Employee[] = [
     bank: 'Banco Vision',
     bankAgency: '0001',
     bankAccount: '78901-2',
-    benefits: ['plano_saude', 'previdencia_privada'],
+    benefits: [{id: 'plano_saude'}, {id: 'previdencia_privada'}],
   },
   {
     id: '8',
@@ -142,7 +157,7 @@ export const employees: Employee[] = [
     bank: 'Banco Vision',
     bankAgency: '0001',
     bankAccount: '89012-3',
-    benefits: ['plano_saude', 'vale_refeicao'],
+    benefits: [{id: 'plano_saude'}, {id: 'vale_refeicao', value: 750}],
   },
   {
     id: '9',
@@ -160,7 +175,7 @@ export const employees: Employee[] = [
     bank: 'Banco Vision',
     bankAgency: '0001',
     bankAccount: '90123-4',
-    benefits: ['plano_saude', 'plano_odontologico', 'seguro_vida'],
+    benefits: [{id: 'plano_saude'}, {id: 'plano_odontologico'}, {id: 'seguro_vida'}],
   },
   {
     id: '10',

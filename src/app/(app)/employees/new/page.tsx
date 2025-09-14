@@ -28,21 +28,34 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { benefits as allBenefits } from '@/lib/benefits-data';
 import { Checkbox } from '@/components/ui/checkbox';
+import { EmployeeBenefit } from '@/types';
 
 export default function NewEmployeePage() {
   const [hireDate, setHireDate] = useState<Date | undefined>();
-  const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
+  const [selectedBenefits, setSelectedBenefits] = useState<EmployeeBenefit[]>([]);
   const { toast } = useToast();
 
   const handleBenefitChange = (benefitId: string, checked: boolean) => {
+    const benefit = allBenefits.find(b => b.id === benefitId);
+    if (!benefit) return;
+  
+    if (checked) {
+      setSelectedBenefits(prev => [...prev, { id: benefitId, value: benefit.hasValue ? '' : undefined }]);
+    } else {
+      setSelectedBenefits(prev => prev.filter(b => b.id !== benefitId));
+    }
+  };
+  
+  const handleBenefitValueChange = (benefitId: string, value: string) => {
     setSelectedBenefits(prev => 
-        checked ? [...prev, benefitId] : prev.filter(id => id !== benefitId)
+      prev.map(b => b.id === benefitId ? { ...b, value: value } : b)
     );
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Here you would typically handle form submission, e.g., send data to an API
+    console.log('Selected benefits:', selectedBenefits);
     toast({
         title: "Funcionário Adicionado (Simulação)",
         description: "Em uma aplicação real, o novo funcionário seria salvo no banco de dados com os benefícios selecionados.",
@@ -140,20 +153,34 @@ export default function NewEmployeePage() {
                         <h3 className="text-lg font-medium">Benefícios</h3>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
-                        {allBenefits.map(benefit => (
-                            <div key={benefit.id} className="flex items-start space-x-3">
-                                <Checkbox 
-                                    id={`benefit-${benefit.id}`}
-                                    checked={selectedBenefits.includes(benefit.id)}
-                                    onCheckedChange={(checked) => handleBenefitChange(benefit.id, !!checked)}
-                                />
-                                <div className="grid gap-1.5 leading-none">
-                                    <Label htmlFor={`benefit-${benefit.id}`} className="font-medium cursor-pointer">
-                                        {benefit.name}
-                                    </Label>
+                        {allBenefits.map(benefit => {
+                            const isSelected = selectedBenefits.some(b => b.id === benefit.id);
+                            return (
+                                <div key={benefit.id} className="space-y-2">
+                                    <div className="flex items-start space-x-3">
+                                        <Checkbox 
+                                            id={`benefit-${benefit.id}`}
+                                            checked={isSelected}
+                                            onCheckedChange={(checked) => handleBenefitChange(benefit.id, !!checked)}
+                                        />
+                                        <div className="grid gap-1.5 leading-none">
+                                            <Label htmlFor={`benefit-${benefit.id}`} className="font-medium cursor-pointer">
+                                                {benefit.name}
+                                            </Label>
+                                        </div>
+                                    </div>
+                                    {benefit.hasValue && isSelected && (
+                                        <Input
+                                            type="number"
+                                            placeholder="Valor (R$)"
+                                            className="h-8"
+                                            value={selectedBenefits.find(b => b.id === benefit.id)?.value || ''}
+                                            onChange={(e) => handleBenefitValueChange(benefit.id, e.target.value)}
+                                        />
+                                    )}
                                 </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 </div>
 

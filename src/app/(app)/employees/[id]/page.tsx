@@ -31,6 +31,7 @@ import DocumentSection from './document-section';
 import { benefits as allBenefits } from '@/lib/benefits-data';
 import { Button } from '@/components/ui/button';
 import ManageBenefitsDialog from '@/components/benefits/manage-benefits-dialog';
+import { EmployeeBenefit } from '@/types';
 
 export default function EmployeeProfilePage({
   params,
@@ -44,10 +45,10 @@ export default function EmployeeProfilePage({
     notFound();
   }
 
-  const handleBenefitsChange = (employeeId: string, newBenefitIds: string[]) => {
+  const handleBenefitsChange = (employeeId: string, newBenefits: EmployeeBenefit[]) => {
     setEmployees(prevEmployees => 
         prevEmployees.map(emp => 
-            emp.id === employeeId ? { ...emp, benefits: newBenefitIds } : emp
+            emp.id === employeeId ? { ...emp, benefits: newBenefits } : emp
         )
     );
   };
@@ -61,7 +62,13 @@ export default function EmployeeProfilePage({
     { icon: CalendarDays, label: 'Data de Contratação', value: new Date(employee.hireDate).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' }) },
   ];
   
-  const employeeBenefits = allBenefits.filter(b => employee.benefits.includes(b.id));
+  const employeeBenefitDetails = employee.benefits.map(empBenefit => {
+    const benefitInfo = allBenefits.find(b => b.id === empBenefit.id);
+    return {
+      ...benefitInfo,
+      ...empBenefit
+    }
+  }).filter(b => b.name); // Filter out any benefits not found in allBenefits
 
   return (
     <div className="space-y-6">
@@ -162,13 +169,16 @@ export default function EmployeeProfilePage({
                     </ManageBenefitsDialog>
                 </CardHeader>
                 <CardContent>
-                    {employeeBenefits.length > 0 ? (
+                    {employeeBenefitDetails.length > 0 ? (
                         <ul className="space-y-4 text-sm">
-                        {employeeBenefits.map(benefit => (
+                        {employeeBenefitDetails.map(benefit => (
                             <li key={benefit.id} className="flex items-start">
                                 <benefit.icon className="mr-3 mt-1 h-4 w-4 flex-shrink-0 text-muted-foreground" />
                                 <div>
                                     <span className="font-semibold">{benefit.name}</span>
+                                    {benefit.value && (
+                                        <span className="text-muted-foreground ml-2">({new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(benefit.value))})</span>
+                                    )}
                                     <p className="text-xs text-muted-foreground">{benefit.description}</p>
                                 </div>
                             </li>
