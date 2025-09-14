@@ -24,6 +24,7 @@ export type AbsenceRequest = {
   endDate: string;
   status: 'Pendente' | 'Aprovado' | 'Negado';
   reason?: string;
+  abonoPecuniario?: boolean;
 };
 
 export type Document = {

@@ -17,10 +17,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { absenceRequests, employees } from '@/lib/data';
-import { PlusCircle, CheckCircle, XCircle } from 'lucide-react';
+import { PlusCircle, CheckCircle, XCircle, CalendarClock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import RequestVacationDialog from '@/components/absence/request-vacation-dialog';
 
 export default function AbsencePage() {
+  const currentUser = employees.find(e => e.id === '1'); // Assuming current user is CEO
+
+  if (!currentUser) {
+    return null;
+  }
+
   const getEmployeeName = (employeeId: string) => {
     return employees.find(e => e.id === employeeId)?.name || 'Desconhecido';
   };
@@ -41,8 +48,17 @@ export default function AbsencePage() {
     );
   };
 
-  const myRequests = absenceRequests.filter(r => r.employeeId === '1'); // Assuming current user is CEO
-  const teamRequests = absenceRequests.filter(r => r.status === 'Pendente' && r.employeeId !== '1');
+  const myRequests = absenceRequests.filter(r => r.employeeId === currentUser.id); 
+  const teamRequests = absenceRequests.filter(r => r.status === 'Pendente' && r.employeeId !== currentUser.id);
+
+  // Simple logic for acquisition/concession period
+  const hireDate = new Date(currentUser.hireDate);
+  const now = new Date();
+  const yearsOfService = now.getFullYear() - hireDate.getFullYear();
+  const acquisitionStart = new Date(hireDate.setFullYear(hireDate.getFullYear() + yearsOfService -1));
+  const acquisitionEnd = new Date(new Date(acquisitionStart).setFullYear(acquisitionStart.getFullYear() + 1));
+  const concessionEnd = new Date(new Date(acquisitionEnd).setFullYear(acquisitionEnd.getFullYear() + 1));
+
 
   return (
     <Tabs defaultValue="my-absences" className="w-full">
@@ -58,10 +74,12 @@ export default function AbsencePage() {
                 <CardTitle>Minhas Ausências</CardTitle>
                 <CardDescription>Suas solicitações e saldos de ausências.</CardDescription>
               </div>
-              <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Solicitar Ausência
-              </Button>
+              <RequestVacationDialog employee={currentUser}>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Solicitar Férias
+                </Button>
+              </RequestVacationDialog>
             </div>
           </CardHeader>
           <CardContent>
@@ -72,28 +90,34 @@ export default function AbsencePage() {
                         <CardTitle className="text-4xl">12</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-xs text-muted-foreground">de 20 dias</div >
+                        <div className="text-xs text-muted-foreground">de 30 dias</div>
                     </CardContent>
                 </Card>
                  <Card>
                     <CardHeader className="pb-2">
-                        <CardDescription>Licenças Médicas Usadas</CardDescription>
-                        <CardTitle className="text-4xl">3</CardTitle>
+                        <CardDescription>Período Aquisitivo</CardDescription>
+                        <CardTitle className="text-lg">
+                           {acquisitionStart.toLocaleDateString('pt-BR')} - {acquisitionEnd.toLocaleDateString('pt-BR')}
+                        </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-xs text-muted-foreground">este ano</div >
+                     <CardContent>
+                        <div className="text-xs text-muted-foreground">Período atual</div>
                     </CardContent>
                 </Card>
                  <Card>
-                    <CardHeader className="pb-2">
-                        <CardDescription>Dias Pessoais</CardDescription>
-                        <CardTitle className="text-4xl">2</CardTitle>
+                    <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                       <div>
+                        <CardDescription>Limite para Concessão</CardDescription>
+                        <CardTitle className="text-lg">{concessionEnd.toLocaleDateString('pt-BR')}</CardTitle>
+                       </div>
+                       <CalendarClock className="h-6 w-6 text-muted-foreground"/>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-xs text-muted-foreground">de 5 dias</div >
+                       <div className="text-xs text-muted-foreground">O empregador deve conceder as férias até esta data</div>
                     </CardContent>
                 </Card>
             </div>
+            <h3 className="text-lg font-medium mb-4">Minhas Solicitações</h3>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -104,14 +128,18 @@ export default function AbsencePage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {myRequests.map(request => (
+                {myRequests.length > 0 ? myRequests.map(request => (
                   <TableRow key={request.id}>
                     <TableCell>{request.type}</TableCell>
-                    <TableCell>{request.startDate}</TableCell>
-                    <TableCell>{request.endDate}</TableCell>
+                    <TableCell>{new Date(request.startDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
+                    <TableCell>{new Date(request.endDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
                     <TableCell>{statusBadge(request.status)}</TableCell>
                   </TableRow>
-                ))}
+                )) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center">Nenhuma solicitação encontrada.</TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </CardContent>
@@ -134,11 +162,11 @@ export default function AbsencePage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {teamRequests.map(request => (
+                {teamRequests.length > 0 ? teamRequests.map(request => (
                   <TableRow key={request.id}>
                     <TableCell>{getEmployeeName(request.employeeId)}</TableCell>
                     <TableCell>{request.type}</TableCell>
-                    <TableCell>{request.startDate} a {request.endDate}</TableCell>
+                    <TableCell>{new Date(request.startDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})} a {new Date(request.endDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
                     <TableCell className="text-right space-x-2">
                       <Button variant="outline" size="icon" className="text-green-600 hover:text-green-700">
                         <CheckCircle className="h-4 w-4" />
@@ -148,7 +176,11 @@ export default function AbsencePage() {
                       </Button>
                     </TableCell>
                   </TableRow>
-                ))}
+                )) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center">Nenhuma solicitação pendente.</TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </CardContent>
