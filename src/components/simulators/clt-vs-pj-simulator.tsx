@@ -45,11 +45,12 @@ export default function CltVsPjSimulator() {
         const custoTotalClt = clt + fgts + decimoTerceiro + ferias;
 
         // Simplified PJ Calculation
-        const proLabore = pjFaturamento * 0.28; // DAS minimum
+        const proLabore = pjFaturamento * 0.28; // Fator R para Simples Nacional
         const inssPj = proLabore * 0.11;
-        const irrfPj = (proLabore - inssPj) > 2826.65 ? (proLabore - inssPj) * 0.15 : 0; // Simplified
+        const irrfPjBase = proLabore - inssPj;
+        const irrfPj = irrfPjBase > 4664.68 ? (irrfPjBase * 0.275) - 869.36 : (irrfPjBase > 2826.65 ? (irrfPjBase * 0.15) - 354.80 : 0); // Simplified IRRF table
         const das = pjFaturamento * 0.06; // Simples Nacional Annex III simplified
-        const impostosTotal = das + inssPj + irrfPj;
+        const impostosTotal = das + inssPj + (irrfPj > 0 ? irrfPj : 0);
         const liquidoPj = pjFaturamento - impostosTotal - pjCustos;
 
         setResult({
@@ -65,9 +66,9 @@ export default function CltVsPjSimulator() {
                 liquidoMensal: liquidoPj,
                 impostosTotal: impostosTotal,
                 impostos: {
-                    das,
-                    inssPj,
-                    irrfPj
+                    das: das,
+                    inss: inssPj,
+                    irrf: irrfPj > 0 ? irrfPj : 0,
                 },
                 custosMensais: pjCustos,
             }
@@ -151,8 +152,8 @@ export default function CltVsPjSimulator() {
                                     </div>
                                     <div className="pl-4 text-xs text-red-600 space-y-1">
                                       <div className="flex justify-between"><span>- Simples Nacional (DAS):</span> <span>{formatCurrency(result.pj.impostos.das)}</span></div>
-                                      <div className="flex justify-between"><span>- INSS (Pró-labore):</span> <span>{formatCurrency(result.pj.impostos.inssPj)}</span></div>
-                                      <div className="flex justify-between"><span>- IRRF (Pró-labore):</span> <span>{formatCurrency(result.pj.impostos.irrfPj)}</span></div>
+                                      <div className="flex justify-between"><span>- INSS (Pró-labore):</span> <span>{formatCurrency(result.pj.impostos.inss)}</span></div>
+                                      <div className="flex justify-between"><span>- IRRF (Pró-labore):</span> <span>{formatCurrency(result.pj.impostos.irrf)}</span></div>
                                     </div>
                                     <div className="flex justify-between text-red-600"><span>(-) Custos Adicionais:</span> <span>{formatCurrency(result.pj.custosMensais)}</span></div>
                                     <Separator />
