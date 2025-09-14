@@ -68,7 +68,7 @@ export default function AdminPayslipPage() {
   const selectedEmployeePayslips = selectedEmployeeId ? payslips.filter(p => p.employeeId === selectedEmployeeId).sort((a,b) => new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime()) : [];
 
   return (
-    <Tabs defaultValue="overview">
+    <Tabs defaultValue="overview" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="overview">Visão Geral</TabsTrigger>
         <TabsTrigger value="by-employee">Por Funcionário</TabsTrigger>
