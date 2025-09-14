@@ -64,6 +64,11 @@ export default function CltVsPjSimulator() {
                 faturamentoBruto: pjFaturamento,
                 liquidoMensal: liquidoPj,
                 impostosTotal: impostosTotal,
+                impostos: {
+                    das,
+                    inssPj,
+                    irrfPj
+                },
                 custosMensais: pjCustos,
             }
         });
@@ -140,7 +145,15 @@ export default function CltVsPjSimulator() {
                                  <div className="space-y-3 p-4 rounded-md bg-muted/30">
                                     <h4 className="font-bold text-lg text-accent">PJ</h4>
                                     <div className="flex justify-between"><span>Faturamento Bruto:</span> <span className="font-medium">{formatCurrency(result.pj.faturamentoBruto)}</span></div>
-                                    <div className="flex justify-between text-red-600"><span>(-) Impostos (DAS/INSS/IRRF aprox.):</span> <span>{formatCurrency(result.pj.impostosTotal)}</span></div>
+                                    <div className="flex justify-between text-red-600">
+                                      <span>(-) Impostos (Total):</span>
+                                      <span>{formatCurrency(result.pj.impostosTotal)}</span>
+                                    </div>
+                                    <div className="pl-4 text-xs text-red-600 space-y-1">
+                                      <div className="flex justify-between"><span>- Simples Nacional (DAS):</span> <span>{formatCurrency(result.pj.impostos.das)}</span></div>
+                                      <div className="flex justify-between"><span>- INSS (Pró-labore):</span> <span>{formatCurrency(result.pj.impostos.inssPj)}</span></div>
+                                      <div className="flex justify-between"><span>- IRRF (Pró-labore):</span> <span>{formatCurrency(result.pj.impostos.irrfPj)}</span></div>
+                                    </div>
                                     <div className="flex justify-between text-red-600"><span>(-) Custos Adicionais:</span> <span>{formatCurrency(result.pj.custosMensais)}</span></div>
                                     <Separator />
                                     <div className="flex justify-between font-bold text-lg"><span>= Líquido Mensal:</span> <span>{formatCurrency(result.pj.liquidoMensal)}</span></div>
