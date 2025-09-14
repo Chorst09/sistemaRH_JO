@@ -47,9 +47,10 @@ export default function CltVsPjSimulator() {
         // Simplified PJ Calculation
         const proLabore = pjFaturamento * 0.28; // DAS minimum
         const inssPj = proLabore * 0.11;
-        const irrfPj = (proLabore - inssPj) * 0.15;
+        const irrfPj = (proLabore - inssPj) > 2826.65 ? (proLabore - inssPj) * 0.15 : 0; // Simplified
         const das = pjFaturamento * 0.06; // Simples Nacional Annex III simplified
-        const liquidoPj = pjFaturamento - das - pjCustos - irrfPj - inssPj;
+        const impostosTotal = das + inssPj + irrfPj;
+        const liquidoPj = pjFaturamento - impostosTotal - pjCustos;
 
         setResult({
             clt: {
@@ -62,7 +63,7 @@ export default function CltVsPjSimulator() {
             pj: {
                 faturamentoBruto: pjFaturamento,
                 liquidoMensal: liquidoPj,
-                impostosTotal: das + inssPj + irrfPj,
+                impostosTotal: impostosTotal,
                 custosMensais: pjCustos,
             }
         });
@@ -139,13 +140,13 @@ export default function CltVsPjSimulator() {
                                  <div className="space-y-3 p-4 rounded-md bg-muted/30">
                                     <h4 className="font-bold text-lg text-accent">PJ</h4>
                                     <div className="flex justify-between"><span>Faturamento Bruto:</span> <span className="font-medium">{formatCurrency(result.pj.faturamentoBruto)}</span></div>
-                                    <div className="flex justify-between text-red-600"><span>(-) Impostos (DAS/INSS/IRRF):</span> <span>{formatCurrency(result.pj.impostosTotal)}</span></div>
+                                    <div className="flex justify-between text-red-600"><span>(-) Impostos (DAS/INSS/IRRF aprox.):</span> <span>{formatCurrency(result.pj.impostosTotal)}</span></div>
                                     <div className="flex justify-between text-red-600"><span>(-) Custos Adicionais:</span> <span>{formatCurrency(result.pj.custosMensais)}</span></div>
                                     <Separator />
                                     <div className="flex justify-between font-bold text-lg"><span>= Líquido Mensal:</span> <span>{formatCurrency(result.pj.liquidoMensal)}</span></div>
                                     <Separator />
                                      <div className="text-xs text-muted-foreground pt-2">
-                                        <p>Lembre-se que como PJ, você é responsável por reservar valores para 13º e férias.</p>
+                                        <p>Lembre-se que como PJ, você é responsável por reservar valores para 13º e férias, e que os impostos podem variar.</p>
                                     </div>
                                 </div>
                             </CardContent>
