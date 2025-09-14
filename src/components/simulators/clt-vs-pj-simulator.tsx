@@ -150,11 +150,13 @@ export default function CltVsPjSimulator() {
                                       <span>(-) Impostos (Total):</span>
                                       <span>{formatCurrency(result.pj.impostosTotal)}</span>
                                     </div>
+                                    {result.pj.impostos && (
                                     <div className="pl-4 text-xs text-red-600 space-y-1">
                                       <div className="flex justify-between"><span>- Simples Nacional (DAS):</span> <span>{formatCurrency(result.pj.impostos.das)}</span></div>
                                       <div className="flex justify-between"><span>- INSS (Pró-labore):</span> <span>{formatCurrency(result.pj.impostos.inss)}</span></div>
                                       <div className="flex justify-between"><span>- IRRF (Pró-labore):</span> <span>{formatCurrency(result.pj.impostos.irrf)}</span></div>
                                     </div>
+                                    )}
                                     <div className="flex justify-between text-red-600"><span>(-) Custos Adicionais:</span> <span>{formatCurrency(result.pj.custosMensais)}</span></div>
                                     <Separator />
                                     <div className="flex justify-between font-bold text-lg"><span>= Líquido Mensal:</span> <span>{formatCurrency(result.pj.liquidoMensal)}</span></div>
