@@ -70,3 +70,13 @@ export type Benefit = {
   name: string;
   description: string;
 };
+
+export type TaxRegime = 'Simples Nacional' | 'Lucro Presumido' | 'Lucro Real';
+
+export type Company = {
+  id: string;
+  name: string;
+  cnpj: string;
+  taxRegime: TaxRegime;
+  status: 'Ativa' | 'Inativa';
+};
