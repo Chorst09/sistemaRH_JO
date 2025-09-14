@@ -1,4 +1,4 @@
-import { LucideIcon, Stethoscope, Tooth, Utensils, Tram, ShieldCheck, Banknote, Baby } from "lucide-react";
+import { LucideIcon, Stethoscope, Smile, Utensils, TramFront, ShieldCheck, Banknote, Baby } from "lucide-react";
 
 export type Benefit = {
   id: string;
@@ -18,7 +18,7 @@ export const benefits: Benefit[] = [
     id: 'plano_odontologico',
     name: 'Plano Odontológico',
     description: 'Acesso a uma ampla rede de dentistas para cuidados bucais.',
-    icon: Tooth,
+    icon: Smile,
   },
   {
     id: 'vale_refeicao',
@@ -30,7 +30,7 @@ export const benefits: Benefit[] = [
     id: 'vale_transporte',
     name: 'Vale-Transporte',
     description: 'Auxílio para o deslocamento entre sua casa e o trabalho.',
-    icon: Tram,
+    icon: TramFront,
   },
   {
     id: 'seguro_vida',
