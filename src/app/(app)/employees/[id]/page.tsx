@@ -1,4 +1,7 @@
-import { employees } from '@/lib/data';
+'use client';
+
+import { useState } from 'react';
+import { employees as initialEmployees } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import {
   Avatar,
@@ -21,21 +24,33 @@ import {
   MapPin,
   CalendarDays,
   BadgeInfo,
-  HeartHandshake
+  HeartHandshake,
+  Settings
 } from 'lucide-react';
 import DocumentSection from './document-section';
 import { benefits as allBenefits } from '@/lib/benefits-data';
+import { Button } from '@/components/ui/button';
+import ManageBenefitsDialog from '@/components/benefits/manage-benefits-dialog';
 
 export default function EmployeeProfilePage({
   params,
 }: {
   params: { id: string };
 }) {
+  const [employees, setEmployees] = useState(initialEmployees);
   const employee = employees.find((e) => e.id === params.id);
 
   if (!employee) {
     notFound();
   }
+
+  const handleBenefitsChange = (employeeId: string, newBenefitIds: string[]) => {
+    setEmployees(prevEmployees => 
+        prevEmployees.map(emp => 
+            emp.id === employeeId ? { ...emp, benefits: newBenefitIds } : emp
+        )
+    );
+  };
 
   const infoItems = [
     { icon: BadgeInfo, label: 'Cargo', value: employee.role },
@@ -130,9 +145,21 @@ export default function EmployeeProfilePage({
                 </CardContent>
                 </Card>
                 <Card>
-                <CardHeader className="flex flex-row items-center gap-3">
-                    <HeartHandshake className="h-6 w-6" />
-                    <CardTitle>Benefícios</CardTitle>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <HeartHandshake className="h-6 w-6" />
+                        <CardTitle>Benefícios</CardTitle>
+                    </div>
+                    <ManageBenefitsDialog 
+                      employee={employee} 
+                      allBenefits={allBenefits} 
+                      onBenefitsChange={handleBenefitsChange}
+                    >
+                        <Button variant="outline" size="sm">
+                            <Settings className="mr-2 h-4 w-4"/>
+                            Gerenciar
+                        </Button>
+                    </ManageBenefitsDialog>
                 </CardHeader>
                 <CardContent>
                     {employeeBenefits.length > 0 ? (
