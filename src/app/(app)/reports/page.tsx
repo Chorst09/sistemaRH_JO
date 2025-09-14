@@ -20,7 +20,7 @@ export default function ReportsPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$96,150</div>
+            <div className="text-2xl font-bold">R$96.150</div>
             <p className="text-xs text-muted-foreground">+3.2% do ano passado</p>
           </CardContent>
         </Card>
