@@ -16,6 +16,7 @@ import {
   Plane,
   UserX,
   ReceiptText,
+  BookUser,
 } from 'lucide-react';
 
 const navItems = [
@@ -24,6 +25,7 @@ const navItems = [
   { href: '/vacation', icon: Plane, label: 'Férias' },
   { href: '/absence', icon: CalendarOff, label: 'Ausências' },
   { href: '/payslip', icon: ReceiptText, label: 'Folha de Pagamento' },
+  { href: '/admin/payslip', icon: BookUser, label: 'Folha (Admin)' },
   { href: '/organization', icon: Network, label: 'Organograma' },
   { href: '/reports', icon: BarChart, label: 'Relatórios' },
   { href: '/termination', icon: UserX, label: 'Rescisão' },

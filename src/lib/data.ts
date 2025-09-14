@@ -233,7 +233,7 @@ export const documents: Document[] = [
   },
 ];
 
-const generatePayslips = (employeeId: string, baseSalary: number): Payslip[] => {
+const generatePayslips = (employee: Employee): Payslip[] => {
     const payslips: Payslip[] = [];
     const months = [
         { month: 7, year: 2024, paymentDate: '2024-08-05' },
@@ -242,7 +242,7 @@ const generatePayslips = (employeeId: string, baseSalary: number): Payslip[] => 
     ];
 
     months.forEach((m, index) => {
-        const monthlySalary = baseSalary / 12;
+        const monthlySalary = employee.salary / 12;
         const bonus = m.month === 6 ? monthlySalary * 0.2 : 0; // Exemplo de bônus em Junho
         const earnings = [
             { description: 'Salário Base', amount: monthlySalary },
@@ -267,8 +267,8 @@ const generatePayslips = (employeeId: string, baseSalary: number): Payslip[] => 
         const netSalary = grossSalary - totalDeductions;
 
         payslips.push({
-            id: `ps${employeeId}-${index + 1}`,
-            employeeId: employeeId,
+            id: `ps${employee.id}-${index + 1}`,
+            employeeId: employee.id,
             month: m.month,
             year: m.year,
             paymentDate: m.paymentDate,
@@ -284,4 +284,4 @@ const generatePayslips = (employeeId: string, baseSalary: number): Payslip[] => 
     return payslips;
 };
 
-export const payslips: Payslip[] = generatePayslips('1', 150000);
+export const payslips: Payslip[] = employees.flatMap(emp => generatePayslips(emp));
