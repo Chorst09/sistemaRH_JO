@@ -102,7 +102,7 @@ export default function TerminationPage() {
     };
 
     return (
-        <>
+        <div className="space-y-6">
             <Card className="print:hidden">
                 <CardHeader>
                     <CardTitle>Simulador de Rescisão</CardTitle>
@@ -187,18 +187,22 @@ export default function TerminationPage() {
                                     <p>Calculando...</p>
                                 </div>
                             )}
-                            {calculation && selectedEmployee && lastDay && (
-                                <TerminationResult calculation={calculation} employee={selectedEmployee} lastDay={lastDay} />
-                            )}
                         </div>
                     </div>
                 </CardContent>
             </Card>
-            <div className="hidden print:block">
+            
+            {calculation && selectedEmployee && lastDay && (
+                <div className="hidden print:block">
+                    <TerminationResult calculation={calculation} employee={selectedEmployee} lastDay={lastDay} />
+                </div>
+            )}
+
+            <div className="block print:hidden">
                  {calculation && selectedEmployee && lastDay && (
                     <TerminationResult calculation={calculation} employee={selectedEmployee} lastDay={lastDay} />
                 )}
             </div>
-        </>
+        </div>
     );
 }

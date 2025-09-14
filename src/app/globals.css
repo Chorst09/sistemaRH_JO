@@ -89,40 +89,23 @@ body {
 
 @layer utilities {
     @media print {
+        body {
+            background-color: white;
+        }
         .print\:hidden {
             display: none;
         }
         .print\:block {
             display: block;
         }
-        .print\:p-8 {
-            padding: 2rem;
+        .print\:p-0 {
+            padding: 0;
         }
-        .print\:text-2xl {
-            font-size: 1.5rem;
-            line-height: 2rem;
+        .print\:shadow-none {
+            box-shadow: none;
         }
-        .print\:mb-4 {
-            margin-bottom: 1rem;
-        }
-        .print\:mb-6 {
-            margin-bottom: 1.5rem;
-        }
-        .print\:grid {
-            display: grid;
-        }
-        .print\:grid-cols-2 {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-        .print\:gap-x-8 {
-            column-gap: 2rem;
-        }
-        .print\:gap-y-4 {
-            row-gap: 1rem;
-        }
-
-        body {
-            background-color: white;
+        .print\:border-0 {
+            border-width: 0;
         }
     }
 }

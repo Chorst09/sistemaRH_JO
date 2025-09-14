@@ -23,7 +23,7 @@ export default function TerminationResult({ calculation, employee, lastDay }: Te
     };
 
     return (
-        <div className="print:p-8">
+        <div className="print:p-0">
             <div className="flex justify-between items-center mb-4 print:hidden">
                 <h3 className="text-lg font-semibold">Resultado da Simulação</h3>
                 <Button variant="outline" size="sm" onClick={handlePrint}>
@@ -31,7 +31,7 @@ export default function TerminationResult({ calculation, employee, lastDay }: Te
                     Imprimir / Salvar PDF
                 </Button>
             </div>
-            <Alert>
+            <Alert className="print:shadow-none print:border-0">
                 <Calculator className="h-4 w-4 print:hidden"/>
                 <AlertTitle className="print:text-2xl print:mb-4">Simulação de Valores Rescisórios</AlertTitle>
                 <AlertDescription>
