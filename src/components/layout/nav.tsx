@@ -14,6 +14,7 @@ import {
   Network,
   BarChart,
   Plane,
+  UserX,
 } from 'lucide-react';
 
 const navItems = [
@@ -23,6 +24,7 @@ const navItems = [
   { href: '/absence', icon: CalendarOff, label: 'Ausências' },
   { href: '/organization', icon: Network, label: 'Organograma' },
   { href: '/reports', icon: BarChart, label: 'Relatórios' },
+  { href: '/termination', icon: UserX, label: 'Rescisão' },
 ];
 
 export function Nav() {
