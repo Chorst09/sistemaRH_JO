@@ -13,11 +13,13 @@ import {
   CalendarOff,
   Network,
   BarChart,
+  Plane,
 } from 'lucide-react';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/employees', icon: Users, label: 'Funcionários' },
+  { href: '/vacation', icon: Plane, label: 'Férias' },
   { href: '/absence', icon: CalendarOff, label: 'Ausências' },
   { href: '/organization', icon: Network, label: 'Organograma' },
   { href: '/reports', icon: BarChart, label: 'Relatórios' },
