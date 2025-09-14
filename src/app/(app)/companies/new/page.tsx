@@ -74,6 +74,18 @@ export default function NewCompanyPage() {
                         </SelectContent>
                     </Select>
                 </div>
+                <div>
+                    <Label htmlFor="status">Status</Label>
+                    <Select required>
+                        <SelectTrigger id="status">
+                            <SelectValue placeholder="Selecione o status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Ativa">Ativa</SelectItem>
+                            <SelectItem value="Inativa">Inativa</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
                 <div className="flex justify-end gap-2">
                     <Button variant="outline" asChild>
                         <Link href="/companies">Cancelar</Link>
