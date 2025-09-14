@@ -16,18 +16,18 @@ const chartData = Object.entries(absenceData).map(([name, value]) => ({ name, va
 
 const chartConfig = {
   value: {
-    label: 'Days',
+    label: 'Dias',
   },
-  Vacation: {
-    label: 'Vacation',
+  'Férias': {
+    label: 'Férias',
     color: 'hsl(var(--chart-1))',
   },
-  'Sick Leave': {
-    label: 'Sick Leave',
+  'Licença Médica': {
+    label: 'Licença Médica',
     color: 'hsl(var(--chart-2))',
   },
-  Personal: {
-    label: 'Personal',
+  'Pessoal': {
+    label: 'Pessoal',
     color: 'hsl(var(--chart-3))',
   },
 };

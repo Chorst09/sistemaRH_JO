@@ -36,12 +36,12 @@ export default function EmployeeProfilePage({
   }
 
   const infoItems = [
-    { icon: BadgeInfo, label: 'Role', value: employee.role },
-    { icon: Briefcase, label: 'Department', value: employee.department },
+    { icon: BadgeInfo, label: 'Cargo', value: employee.role },
+    { icon: Briefcase, label: 'Departamento', value: employee.department },
     { icon: Mail, label: 'Email', value: employee.email },
-    { icon: Phone, label: 'Phone', value: employee.phone },
-    { icon: MapPin, label: 'Address', value: employee.address },
-    { icon: CalendarDays, label: 'Hire Date', value: new Date(employee.hireDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) },
+    { icon: Phone, label: 'Telefone', value: employee.phone },
+    { icon: MapPin, label: 'Endereço', value: employee.address },
+    { icon: CalendarDays, label: 'Data de Contratação', value: new Date(employee.hireDate).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' }) },
   ];
 
   return (
@@ -61,15 +61,15 @@ export default function EmployeeProfilePage({
       
       <Tabs defaultValue="profile" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
+          <TabsTrigger value="profile">Perfil</TabsTrigger>
+          <TabsTrigger value="documents">Documentos</TabsTrigger>
         </TabsList>
         <TabsContent value="profile" className="mt-4">
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
               <CardHeader className="flex flex-row items-center gap-3">
                 <User className="h-6 w-6" />
-                <CardTitle>Personal & Professional Details</CardTitle>
+                <CardTitle>Detalhes Pessoais e Profissionais</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-4 text-sm">
@@ -89,35 +89,35 @@ export default function EmployeeProfilePage({
             <Card>
               <CardHeader className="flex flex-row items-center gap-3">
                 <Banknote className="h-6 w-6" />
-                <CardTitle>Financial Information</CardTitle>
+                <CardTitle>Informações Financeiras</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-4 text-sm">
                   <li className="flex items-start">
                     <BadgeInfo className="mr-3 mt-1 h-4 w-4 flex-shrink-0 text-muted-foreground" />
                     <div>
-                      <span className="font-semibold">Salary:</span>{' '}
-                      <span className="text-muted-foreground">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(employee.salary)} / year</span>
+                      <span className="font-semibold">Salário:</span>{' '}
+                      <span className="text-muted-foreground">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(employee.salary)} / ano</span>
                     </div>
                   </li>
                   <li className="flex items-start">
                     <BadgeInfo className="mr-3 mt-1 h-4 w-4 flex-shrink-0 text-muted-foreground" />
                     <div>
-                      <span className="font-semibold">Bank:</span>{' '}
+                      <span className="font-semibold">Banco:</span>{' '}
                       <span className="text-muted-foreground">{employee.bank}</span>
                     </div>
                   </li>
                    <li className="flex items-start">
                     <BadgeInfo className="mr-3 mt-1 h-4 w-4 flex-shrink-0 text-muted-foreground" />
                     <div>
-                      <span className="font-semibold">Agency:</span>{' '}
+                      <span className="font-semibold">Agência:</span>{' '}
                       <span className="text-muted-foreground">{employee.bankAgency}</span>
                     </div>
                   </li>
                    <li className="flex items-start">
                     <BadgeInfo className="mr-3 mt-1 h-4 w-4 flex-shrink-0 text-muted-foreground" />
                     <div>
-                      <span className="font-semibold">Account:</span>{' '}
+                      <span className="font-semibold">Conta:</span>{' '}
                       <span className="text-muted-foreground">{employee.bankAccount}</span>
                     </div>
                   </li>

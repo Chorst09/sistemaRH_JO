@@ -20,8 +20,8 @@ export default function OrganizationPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Organizational Chart</CardTitle>
-        <CardDescription>Visualize your company's structure.</CardDescription>
+        <CardTitle>Organograma</CardTitle>
+        <CardDescription>Visualize a estrutura da sua empresa.</CardDescription>
       </CardHeader>
       <CardContent className="p-4 md:p-10 overflow-x-auto">
         <div className="flex justify-center">
@@ -32,7 +32,7 @@ export default function OrganizationPage() {
                 childrenMap={childrenMap}
                 />
             ) : (
-                <p>No root employee found to build the organization chart.</p>
+                <p>Nenhum funcionário raiz encontrado para construir o organograma.</p>
             )}
         </div>
       </CardContent>

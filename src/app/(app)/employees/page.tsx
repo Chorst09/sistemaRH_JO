@@ -25,13 +25,13 @@ export default function EmployeesPage() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Employees</CardTitle>
-            <CardDescription>Manage your organization's employees.</CardDescription>
+            <CardTitle>Funcionários</CardTitle>
+            <CardDescription>Gerencie os funcionários da sua organização.</CardDescription>
           </div>
           <Button asChild>
             <Link href="#">
               <PlusCircle />
-              Add Employee
+              Adicionar Funcionário
             </Link>
           </Button>
         </div>
@@ -40,12 +40,12 @@ export default function EmployeesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead className="hidden md:table-cell">Department</TableHead>
+              <TableHead>Nome</TableHead>
+              <TableHead className="hidden md:table-cell">Departamento</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="hidden md:table-cell">Hire Date</TableHead>
+              <TableHead className="hidden md:table-cell">Data de Contratação</TableHead>
               <TableHead>
-                <span className="sr-only">Actions</span>
+                <span className="sr-only">Ações</span>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -73,16 +73,17 @@ export default function EmployeesPage() {
                   <Badge
                     variant="outline"
                     className={cn(
-                      employee.status === 'Active' && 'bg-green-100 dark:bg-green-900/50 border-green-300 dark:border-green-800',
-                      employee.status === 'On Leave' && 'bg-yellow-100 dark:bg-yellow-900/50 border-yellow-300 dark:border-yellow-800',
-                      employee.status === 'Terminated' && 'bg-red-100 dark:bg-red-900/50 border-red-300 dark:border-red-800',
+                      'capitalize',
+                      employee.status === 'Ativo' && 'bg-green-100 dark:bg-green-900/50 border-green-300 dark:border-green-800',
+                      employee.status === 'De Licença' && 'bg-yellow-100 dark:bg-yellow-900/50 border-yellow-300 dark:border-yellow-800',
+                      employee.status === 'Demitido' && 'bg-red-100 dark:bg-red-900/50 border-red-300 dark:border-red-800',
                     )}
                   >
                     {employee.status}
                   </Badge>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                  {new Date(employee.hireDate).toLocaleDateString('en-US', {
+                  {new Date(employee.hireDate).toLocaleDateString('pt-BR', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -91,7 +92,7 @@ export default function EmployeesPage() {
                 <TableCell>
                   <Link href={`/employees/${employee.id}`}>
                     <Button variant="outline" size="sm">
-                      View
+                      Ver
                     </Button>
                   </Link>
                 </TableCell>

@@ -3,8 +3,8 @@ export type Employee = {
   name: string;
   email: string;
   role: string;
-  department: 'Engineering' | 'Marketing' | 'Sales' | 'Human Resources' | 'Design';
-  status: 'Active' | 'On Leave' | 'Terminated';
+  department: 'Engenharia' | 'Marketing' | 'Vendas' | 'Recursos Humanos' | 'Design';
+  status: 'Ativo' | 'De Licença' | 'Demitido';
   avatar: string;
   managerId?: string;
   hireDate: string;
@@ -19,10 +19,10 @@ export type Employee = {
 export type AbsenceRequest = {
   id: string;
   employeeId: string;
-  type: 'Vacation' | 'Sick Leave' | 'Personal';
+  type: 'Férias' | 'Licença Médica' | 'Pessoal';
   startDate: string;
   endDate: string;
-  status: 'Pending' | 'Approved' | 'Denied';
+  status: 'Pendente' | 'Aprovado' | 'Negado';
   reason?: string;
 };
 

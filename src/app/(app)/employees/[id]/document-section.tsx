@@ -55,8 +55,8 @@ export default function DocumentSection() {
   const handleAnalysis = async () => {
     if (!file) {
       toast({
-        title: 'No file selected',
-        description: 'Please choose a file to analyze.',
+        title: 'Nenhum arquivo selecionado',
+        description: 'Por favor, escolha um arquivo para analisar.',
         variant: 'destructive',
       });
       return;
@@ -70,10 +70,10 @@ export default function DocumentSection() {
       const result = await suggestDataFieldsFromDocument({ documentDataUri });
       setAiResult(result);
     } catch (error) {
-      console.error('AI analysis failed:', error);
+      console.error('Análise de IA falhou:', error);
       toast({
-        title: 'Analysis Failed',
-        description: 'There was an error analyzing the document.',
+        title: 'Análise Falhou',
+        description: 'Ocorreu um erro ao analisar o documento.',
         variant: 'destructive',
       });
     } finally {
@@ -85,9 +85,9 @@ export default function DocumentSection() {
     <div className="grid gap-6 lg:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle>Document Analysis</CardTitle>
+          <CardTitle>Análise de Documentos</CardTitle>
           <CardDescription>
-            Upload a document to let AI suggest which profile fields to update.
+            Faça upload de um documento para que a IA sugira quais campos do perfil atualizar.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -95,7 +95,7 @@ export default function DocumentSection() {
             <Input type="file" onChange={handleFileChange} />
             {file && (
               <p className="text-sm text-muted-foreground">
-                Selected: {file.name}
+                Selecionado: {file.name}
               </p>
             )}
           </div>
@@ -103,26 +103,26 @@ export default function DocumentSection() {
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Analyzing...
+                Analisando...
               </>
             ) : (
               <>
                 <Upload className="mr-2 h-4 w-4" />
-                Analyze Document
+                Analisar Documento
               </>
             )}
           </Button>
           {aiResult && (
             <Alert>
               <Lightbulb className="h-4 w-4" />
-              <AlertTitle>Analysis Complete!</AlertTitle>
+              <AlertTitle>Análise Concluída!</AlertTitle>
               <AlertDescription className="space-y-2 mt-2">
                 <div className="flex items-center gap-2">
                     <Tags className="h-4 w-4 text-muted-foreground"/>
-                    <strong>Document Type:</strong> {aiResult.documentType}
+                    <strong>Tipo de Documento:</strong> {aiResult.documentType}
                 </div>
                 <div>
-                    <strong>Suggested fields to update:</strong>
+                    <strong>Campos sugeridos para atualização:</strong>
                     <ul className="list-disc list-inside mt-1">
                         {aiResult.suggestedFields.map((field) => (
                             <li key={field}>{field}</li>
@@ -136,19 +136,19 @@ export default function DocumentSection() {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>Document Repository</CardTitle>
+          <CardTitle>Repositório de Documentos</CardTitle>
           <CardDescription>
-            List of documents for this employee.
+            Lista de documentos para este funcionário.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Action</TableHead>
+                <TableHead>Nome</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Data</TableHead>
+                <TableHead className="text-right">Ação</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -164,7 +164,7 @@ export default function DocumentSection() {
                     <Button variant="outline" size="icon" asChild>
                       <a href={doc.url}>
                         <Download className="h-4 w-4" />
-                        <span className="sr-only">Download</span>
+                        <span className="sr-only">Baixar</span>
                       </a>
                     </Button>
                   </TableCell>

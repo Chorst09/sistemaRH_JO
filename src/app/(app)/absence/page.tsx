@@ -22,18 +22,18 @@ import { cn } from '@/lib/utils';
 
 export default function AbsencePage() {
   const getEmployeeName = (employeeId: string) => {
-    return employees.find(e => e.id === employeeId)?.name || 'Unknown';
+    return employees.find(e => e.id === employeeId)?.name || 'Desconhecido';
   };
 
-  const statusBadge = (status: 'Pending' | 'Approved' | 'Denied') => {
+  const statusBadge = (status: 'Pendente' | 'Aprovado' | 'Negado') => {
     return (
       <Badge
         variant="outline"
         className={cn(
           'capitalize',
-          status === 'Approved' && 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-800',
-          status === 'Pending' && 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-800',
-          status === 'Denied' && 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800'
+          status === 'Aprovado' && 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-800',
+          status === 'Pendente' && 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-800',
+          status === 'Negado' && 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800'
         )}
       >
         {status}
@@ -42,25 +42,25 @@ export default function AbsencePage() {
   };
 
   const myRequests = absenceRequests.filter(r => r.employeeId === '1'); // Assuming current user is CEO
-  const teamRequests = absenceRequests.filter(r => r.status === 'Pending' && r.employeeId !== '1');
+  const teamRequests = absenceRequests.filter(r => r.status === 'Pendente' && r.employeeId !== '1');
 
   return (
     <Tabs defaultValue="my-absences" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="my-absences">My Absences</TabsTrigger>
-        <TabsTrigger value="team-requests">Team Requests</TabsTrigger>
+        <TabsTrigger value="my-absences">Minhas Ausências</TabsTrigger>
+        <TabsTrigger value="team-requests">Solicitações da Equipe</TabsTrigger>
       </TabsList>
       <TabsContent value="my-absences" className="mt-4">
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>My Absences</CardTitle>
-                <CardDescription>Your absence requests and balances.</CardDescription>
+                <CardTitle>Minhas Ausências</CardTitle>
+                <CardDescription>Suas solicitações e saldos de ausências.</CardDescription>
               </div>
               <Button>
                 <PlusCircle className="mr-2 h-4 w-4" />
-                Request Absence
+                Solicitar Ausência
               </Button>
             </div>
           </CardHeader>
@@ -68,38 +68,38 @@ export default function AbsencePage() {
             <div className="grid gap-4 md:grid-cols-3 mb-6">
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardDescription>Vacation Days Left</CardDescription>
+                        <CardDescription>Dias de Férias Restantes</CardDescription>
                         <CardTitle className="text-4xl">12</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-xs text-muted-foreground">out of 20 days</div >
+                        <div className="text-xs text-muted-foreground">de 20 dias</div >
                     </CardContent>
                 </Card>
                  <Card>
                     <CardHeader className="pb-2">
-                        <CardDescription>Sick Leave Taken</CardDescription>
+                        <CardDescription>Licenças Médicas Usadas</CardDescription>
                         <CardTitle className="text-4xl">3</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-xs text-muted-foreground">this year</div >
+                        <div className="text-xs text-muted-foreground">este ano</div >
                     </CardContent>
                 </Card>
                  <Card>
                     <CardHeader className="pb-2">
-                        <CardDescription>Personal Days</CardDescription>
+                        <CardDescription>Dias Pessoais</CardDescription>
                         <CardTitle className="text-4xl">2</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-xs text-muted-foreground">out of 5 days</div >
+                        <div className="text-xs text-muted-foreground">de 5 dias</div >
                     </CardContent>
                 </Card>
             </div>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Start Date</TableHead>
-                  <TableHead>End Date</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Data de Início</TableHead>
+                  <TableHead>Data de Fim</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -120,17 +120,17 @@ export default function AbsencePage() {
       <TabsContent value="team-requests" className="mt-4">
         <Card>
           <CardHeader>
-            <CardTitle>Team Requests</CardTitle>
-            <CardDescription>Pending absence requests from your team.</CardDescription>
+            <CardTitle>Solicitações da Equipe</CardTitle>
+            <CardDescription>Solicitações de ausência pendentes da sua equipe.</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Employee</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Dates</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>Funcionário</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Datas</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -138,7 +138,7 @@ export default function AbsencePage() {
                   <TableRow key={request.id}>
                     <TableCell>{getEmployeeName(request.employeeId)}</TableCell>
                     <TableCell>{request.type}</TableCell>
-                    <TableCell>{request.startDate} to {request.endDate}</TableCell>
+                    <TableCell>{request.startDate} a {request.endDate}</TableCell>
                     <TableCell className="text-right space-x-2">
                       <Button variant="outline" size="icon" className="text-green-600 hover:text-green-700">
                         <CheckCircle className="h-4 w-4" />

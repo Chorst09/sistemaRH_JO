@@ -17,10 +17,10 @@ import {
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/employees', icon: Users, label: 'Employees' },
-  { href: '/absence', icon: CalendarOff, label: 'Absence' },
-  { href: '/organization', icon: Network, label: 'Organization' },
-  { href: '/reports', icon: BarChart, label: 'Reports' },
+  { href: '/employees', icon: Users, label: 'Funcionários' },
+  { href: '/absence', icon: CalendarOff, label: 'Ausências' },
+  { href: '/organization', icon: Network, label: 'Organograma' },
+  { href: '/reports', icon: BarChart, label: 'Relatórios' },
 ];
 
 export function Nav() {

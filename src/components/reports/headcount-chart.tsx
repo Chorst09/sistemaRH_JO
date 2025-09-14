@@ -8,7 +8,7 @@ import {
 import { employees } from '@/lib/data';
 
 const departmentData = employees.reduce((acc, employee) => {
-    if (employee.status === 'Active') {
+    if (employee.status === 'Ativo') {
         acc[employee.department] = (acc[employee.department] || 0) + 1;
     }
     return acc;
@@ -19,7 +19,7 @@ const chartData = Object.entries(departmentData).map(([name, total]) => ({ name,
 
 const chartConfig = {
   total: {
-    label: 'Headcount',
+    label: 'Efetivo',
     color: 'hsl(var(--chart-1))',
   },
 };

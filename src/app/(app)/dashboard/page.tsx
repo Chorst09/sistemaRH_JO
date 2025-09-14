@@ -26,28 +26,28 @@ import HeadcountChart from '@/components/reports/headcount-chart';
 
 const kpis = [
   {
-    title: 'Total Employees',
+    title: 'Total de Funcionários',
     value: '10',
     icon: Users,
-    change: '+2% from last month',
+    change: '+2% do último mês',
   },
   {
-    title: 'On Leave',
+    title: 'Em Licença',
     value: '1',
     icon: Briefcase,
-    change: '+1 since last week',
+    change: '+1 desde a última semana',
   },
   {
-    title: 'New Hires',
+    title: 'Novas Contratações',
     value: '3',
     icon: UserCheck,
-    change: 'this quarter',
+    change: 'neste trimestre',
   },
   {
-    title: 'Terminations',
+    title: 'Desligamentos',
     value: '1',
     icon: UserX,
-    change: 'this quarter',
+    change: 'neste trimestre',
   },
 ];
 
@@ -60,18 +60,18 @@ const upcomingHolidays = [
 const recentActivities = [
   {
     person: 'Julia Martins',
-    action: 'submitted an absence request.',
-    time: '2 hours ago',
+    action: 'enviou uma solicitação de ausência.',
+    time: '2 horas atrás',
   },
   {
     person: 'Arthur Costa',
-    action: 'approved a vacation request for Lucas Almeida.',
-    time: '5 hours ago',
+    action: 'aprovou um pedido de férias para Lucas Almeida.',
+    time: '5 horas atrás',
   },
   {
     person: 'HR Bot',
-    action: 'flagged an expiring contract for Bernardo Pereira.',
-    time: '1 day ago',
+    action: 'sinalizou um contrato expirando para Bernardo Pereira.',
+    time: '1 dia atrás',
   },
 ];
 
@@ -96,7 +96,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="lg:col-span-4">
           <CardHeader>
-            <CardTitle>Headcount Growth</CardTitle>
+            <CardTitle>Crescimento do Efetivo</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
             <HeadcountChart />
@@ -104,9 +104,9 @@ export default function DashboardPage() {
         </Card>
         <Card className="lg:col-span-3">
           <CardHeader>
-            <CardTitle>Recent Activities</CardTitle>
+            <CardTitle>Atividades Recentes</CardTitle>
             <CardDescription>
-              A log of recent HR-related actions in the system.
+              Um registro de ações recentes relacionadas ao RH no sistema.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -128,21 +128,21 @@ export default function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Upcoming Holidays</CardTitle>
+          <CardTitle>Próximos Feriados</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Holiday</TableHead>
+                <TableHead>Data</TableHead>
+                <TableHead>Feriado</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {upcomingHolidays.map((holiday) => (
                 <TableRow key={holiday.name}>
                   <TableCell className="font-medium">
-                    {new Date(holiday.date).toLocaleDateString('en-US', {
+                    {new Date(holiday.date).toLocaleDateString('pt-BR', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',

@@ -39,17 +39,17 @@ export function UserNav() {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <User />
-            <span>Profile</span>
+            <span>Perfil</span>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <CreditCard />
-            <span>Billing</span>
+            <span>Faturamento</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <LogOut />
-          <span>Log out</span>
+          <span>Sair</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
