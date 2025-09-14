@@ -14,7 +14,6 @@ import {
   Network,
   BarChart,
   Plane,
-  UserX,
   ReceiptText,
   BookUser,
   Settings,

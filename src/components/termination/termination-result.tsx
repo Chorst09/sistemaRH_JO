@@ -4,7 +4,7 @@ import { Employee } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Calculator, Printer } from 'lucide-react';
-import type { TerminationCalculation } from '@/app/(app)/termination/page';
+import type { TerminationCalculation } from '@/components/simulators/termination-simulator';
 
 type TerminationResultProps = {
     calculation: TerminationCalculation;
