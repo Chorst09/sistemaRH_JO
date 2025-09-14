@@ -1,4 +1,4 @@
-import { Employee, AbsenceRequest, Document } from '@/types';
+import { Employee, AbsenceRequest, Document, Payslip } from '@/types';
 
 export const employees: Employee[] = [
   {
@@ -232,3 +232,42 @@ export const documents: Document[] = [
     url: '#',
   },
 ];
+
+const monthlySalary = 150000 / 12;
+const deductions = monthlySalary * 0.11 + monthlySalary * 0.275; // Dummy calculation
+
+export const payslips: Payslip[] = [
+    {
+        id: 'ps1',
+        employeeId: '1',
+        month: 7,
+        year: 2024,
+        paymentDate: '2024-08-05',
+        grossSalary: monthlySalary,
+        deductions: deductions,
+        netSalary: monthlySalary - deductions,
+        url: '#',
+    },
+    {
+        id: 'ps2',
+        employeeId: '1',
+        month: 6,
+        year: 2024,
+        paymentDate: '2024-07-05',
+        grossSalary: monthlySalary,
+        deductions: deductions,
+        netSalary: monthlySalary - deductions,
+        url: '#',
+    },
+    {
+        id: 'ps3',
+        employeeId: '1',
+        month: 5,
+        year: 2024,
+        paymentDate: '2024-06-05',
+        grossSalary: monthlySalary,
+        deductions: deductions,
+        netSalary: monthlySalary - deductions,
+        url: '#',
+    }
+]

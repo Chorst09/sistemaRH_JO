@@ -34,3 +34,15 @@ export type Document = {
   uploadDate: string;
   url: string;
 };
+
+export type Payslip = {
+  id: string;
+  employeeId: string;
+  month: number;
+  year: number;
+  paymentDate: string;
+  grossSalary: number;
+  deductions: number;
+  netSalary: number;
+  url: string;
+};
