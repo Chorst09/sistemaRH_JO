@@ -63,8 +63,8 @@ export default function CompaniesPage() {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button variant="outline" size="sm">
-                    Ver
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/companies/${company.id}`}>Ver</Link>
                   </Button>
                 </TableCell>
               </TableRow>
