@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { companies } from '@/lib/company-data';
-import { ArrowLeft, Building, FileText, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Building, FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
