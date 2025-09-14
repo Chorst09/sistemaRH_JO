@@ -29,7 +29,7 @@ export default function EmployeesPage() {
             <CardDescription>Gerencie os funcionários da sua organização.</CardDescription>
           </div>
           <Button asChild>
-            <Link href="#">
+            <Link href="/employees/new">
               <PlusCircle />
               Adicionar Funcionário
             </Link>
