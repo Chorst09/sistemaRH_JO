@@ -23,20 +23,29 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { CalendarIcon, UserPlus, ArrowLeft } from 'lucide-react';
+import { CalendarIcon, UserPlus, ArrowLeft, HeartHandshake } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { benefits as allBenefits } from '@/lib/benefits-data';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function NewEmployeePage() {
   const [hireDate, setHireDate] = useState<Date | undefined>();
+  const [selectedBenefits, setSelectedBenefits] = useState<string[]>([]);
   const { toast } = useToast();
+
+  const handleBenefitChange = (benefitId: string, checked: boolean) => {
+    setSelectedBenefits(prev => 
+        checked ? [...prev, benefitId] : prev.filter(id => id !== benefitId)
+    );
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Here you would typically handle form submission, e.g., send data to an API
     toast({
         title: "Funcionário Adicionado (Simulação)",
-        description: "Em uma aplicação real, o novo funcionário seria salvo no banco de dados.",
+        description: "Em uma aplicação real, o novo funcionário seria salvo no banco de dados com os benefícios selecionados.",
     });
   }
 
@@ -55,14 +64,14 @@ export default function NewEmployeePage() {
             </div>
         </div>
       <Card>
-        <CardHeader>
-          <CardTitle>Informações do Funcionário</CardTitle>
-          <CardDescription>
-            Forneça os dados pessoais e profissionais.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-8">
+                <CardHeader className="p-0 mb-6">
+                    <CardTitle>Informações do Funcionário</CardTitle>
+                    <CardDescription>
+                        Forneça os dados pessoais e profissionais.
+                    </CardDescription>
+                </CardHeader>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-4">
                         <div>
@@ -124,6 +133,30 @@ export default function NewEmployeePage() {
                         </div>
                     </div>
                 </div>
+
+                <div className="space-y-4 border-t pt-8">
+                    <div className="flex items-center gap-3">
+                        <HeartHandshake className="h-6 w-6" />
+                        <h3 className="text-lg font-medium">Benefícios</h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
+                        {allBenefits.map(benefit => (
+                            <div key={benefit.id} className="flex items-start space-x-3">
+                                <Checkbox 
+                                    id={`benefit-${benefit.id}`}
+                                    checked={selectedBenefits.includes(benefit.id)}
+                                    onCheckedChange={(checked) => handleBenefitChange(benefit.id, !!checked)}
+                                />
+                                <div className="grid gap-1.5 leading-none">
+                                    <Label htmlFor={`benefit-${benefit.id}`} className="font-medium cursor-pointer">
+                                        {benefit.name}
+                                    </Label>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
                 <div className="flex justify-end gap-2">
                     <Button variant="outline" asChild>
                         <Link href="/employees">Cancelar</Link>
