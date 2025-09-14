@@ -43,7 +43,7 @@ const prompt = ai.definePrompt({
 
   Document: {{media url=documentDataUri}}
 
-  Respond with a JSON object containing the \"documentType\" and an array of \"suggestedFields\".
+  Respond with a JSON object containing the "documentType" and an array of "suggestedFields".
   `,
 });
 
