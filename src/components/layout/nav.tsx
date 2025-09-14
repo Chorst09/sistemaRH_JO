@@ -18,6 +18,7 @@ import {
   ReceiptText,
   BookUser,
   Settings,
+  HeartHandshake,
 } from 'lucide-react';
 
 const navItems = [
@@ -25,6 +26,7 @@ const navItems = [
   { href: '/employees', icon: Users, label: 'Funcionários' },
   { href: '/vacation', icon: Plane, label: 'Férias' },
   { href: '/absence', icon: CalendarOff, label: 'Ausências' },
+  { href: '/benefits', icon: HeartHandshake, label: 'Benefícios' },
   { href: '/payslip', icon: ReceiptText, label: 'Folha de Pagamento' },
   { href: '/admin/payslip', icon: BookUser, label: 'Folha (Admin)' },
   { href: '/organization', icon: Network, label: 'Organograma' },

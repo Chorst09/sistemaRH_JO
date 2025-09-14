@@ -14,6 +14,7 @@ export type Employee = {
   bank: string;
   bankAgency: string;
   bankAccount: string;
+  benefits: string[];
 };
 
 export type AbsenceRequest = {
@@ -57,4 +58,10 @@ export type Payslip = {
   url: string;
   earnings: PayslipEarning[];
   deductions: PayslipDeduction[];
+};
+
+export type Benefit = {
+  id: string;
+  name: string;
+  description: string;
 };
