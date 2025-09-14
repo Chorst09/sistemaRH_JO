@@ -14,7 +14,7 @@ import { UserNav } from '@/components/layout/user-nav';
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <Sidebar>
+      <Sidebar className="print:hidden">
         <SidebarHeader className="border-b border-sidebar-border p-4">
           <div className="flex items-center gap-2">
             <Logo className="size-8 text-primary" />
@@ -29,7 +29,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <AppHeader />
+        <AppHeader className="print:hidden" />
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </SidebarInset>
     </SidebarProvider>
