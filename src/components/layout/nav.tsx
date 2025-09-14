@@ -17,6 +17,7 @@ import {
   UserX,
   ReceiptText,
   BookUser,
+  Settings,
 } from 'lucide-react';
 
 const navItems = [
@@ -29,6 +30,7 @@ const navItems = [
   { href: '/organization', icon: Network, label: 'Organograma' },
   { href: '/reports', icon: BarChart, label: 'Relatórios' },
   { href: '/termination', icon: UserX, label: 'Rescisão' },
+  { href: '/settings', icon: Settings, label: 'Configurações' },
 ];
 
 export function Nav() {
