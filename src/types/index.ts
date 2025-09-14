@@ -1,6 +1,6 @@
 export type EmployeeBenefit = {
   id: string;
-  value?: number | string;
+  value?: string;
 };
 
 export type Employee = {

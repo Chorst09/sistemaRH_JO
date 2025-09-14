@@ -33,7 +33,7 @@ export default function ManageBenefitsDialog({
     onBenefitsChange 
 }: ManageBenefitsDialogProps) {
   const [open, setOpen] = useState(false);
-  const [selectedBenefits, setSelectedBenefits] = useState<EmployeeBenefit[]>(employee.benefits);
+  const [selectedBenefits, setSelectedBenefits] = useState<EmployeeBenefit[]>([]);
   const { toast } = useToast();
 
   const handleSave = () => {
@@ -66,7 +66,8 @@ export default function ManageBenefitsDialog({
     <Dialog open={open} onOpenChange={(isOpen) => {
       setOpen(isOpen);
       if(isOpen) {
-        setSelectedBenefits(employee.benefits);
+        // Deep copy to avoid modifying the original employee object
+        setSelectedBenefits(JSON.parse(JSON.stringify(employee.benefits)));
       }
     }}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -80,8 +81,8 @@ export default function ManageBenefitsDialog({
         <ScrollArea className="h-72">
             <div className="space-y-4 py-4 pr-4">
             {allBenefits.map(benefit => {
-                const isSelected = selectedBenefits.some(b => b.id === benefit.id);
                 const selectedBenefit = selectedBenefits.find(b => b.id === benefit.id);
+                const isSelected = !!selectedBenefit;
 
                 return (
                     <div key={benefit.id} className="space-y-2">

@@ -154,7 +154,8 @@ export default function NewEmployeePage() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
                         {allBenefits.map(benefit => {
-                            const isSelected = selectedBenefits.some(b => b.id === benefit.id);
+                            const selectedBenefit = selectedBenefits.find(b => b.id === benefit.id);
+                            const isSelected = !!selectedBenefit;
                             return (
                                 <div key={benefit.id} className="space-y-2">
                                     <div className="flex items-start space-x-3">
@@ -170,13 +171,15 @@ export default function NewEmployeePage() {
                                         </div>
                                     </div>
                                     {benefit.hasValue && isSelected && (
-                                        <Input
-                                            type="number"
-                                            placeholder="Valor (R$)"
-                                            className="h-8"
-                                            value={selectedBenefits.find(b => b.id === benefit.id)?.value || ''}
-                                            onChange={(e) => handleBenefitValueChange(benefit.id, e.target.value)}
-                                        />
+                                        <div className="pl-6">
+                                            <Input
+                                                type="number"
+                                                placeholder="Valor (R$)"
+                                                className="h-8"
+                                                value={selectedBenefit.value || ''}
+                                                onChange={(e) => handleBenefitValueChange(benefit.id, e.target.value)}
+                                            />
+                                        </div>
                                     )}
                                 </div>
                             )
