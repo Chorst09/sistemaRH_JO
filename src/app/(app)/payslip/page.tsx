@@ -15,8 +15,9 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { payslips, employees } from '@/lib/data';
-import { Download, ReceiptText } from 'lucide-react';
+import { Download, ReceiptText, Eye } from 'lucide-react';
 import { getMonthName } from '@/lib/utils';
+import PayslipDetailDialog from '@/components/payslip/payslip-detail-dialog';
 
 export default function PayslipPage() {
   const currentUser = employees.find(e => e.id === '1'); // Assuming current user is CEO
@@ -51,7 +52,7 @@ export default function PayslipPage() {
               <TableHead>Salário Bruto</TableHead>
               <TableHead>Descontos</TableHead>
               <TableHead>Salário Líquido</TableHead>
-              <TableHead className="text-right">Ação</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -60,9 +61,15 @@ export default function PayslipPage() {
                 <TableCell className="font-medium">{getMonthName(payslip.month)}/{payslip.year}</TableCell>
                 <TableCell>{new Date(payslip.paymentDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
                 <TableCell>{formatCurrency(payslip.grossSalary)}</TableCell>
-                <TableCell className="text-red-600">{formatCurrency(payslip.deductions)}</TableCell>
+                <TableCell className="text-red-600">{formatCurrency(payslip.totalDeductions)}</TableCell>
                 <TableCell className="font-semibold">{formatCurrency(payslip.netSalary)}</TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right space-x-2">
+                  <PayslipDetailDialog payslip={payslip} employee={currentUser}>
+                    <Button variant="outline" size="sm">
+                        <Eye className="mr-2 h-4 w-4" />
+                        Visualizar
+                    </Button>
+                  </PayslipDetailDialog>
                   <Button variant="outline" size="sm" asChild>
                     <a href={payslip.url}>
                       <Download className="mr-2 h-4 w-4" />

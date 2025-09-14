@@ -35,6 +35,16 @@ export type Document = {
   url: string;
 };
 
+export type PayslipEarning = {
+  description: string;
+  amount: number;
+};
+
+export type PayslipDeduction = {
+  description: string;
+  amount: number;
+};
+
 export type Payslip = {
   id: string;
   employeeId: string;
@@ -42,7 +52,9 @@ export type Payslip = {
   year: number;
   paymentDate: string;
   grossSalary: number;
-  deductions: number;
+  totalDeductions: number;
   netSalary: number;
   url: string;
+  earnings: PayslipEarning[];
+  deductions: PayslipDeduction[];
 };

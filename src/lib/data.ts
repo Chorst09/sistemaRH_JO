@@ -233,41 +233,55 @@ export const documents: Document[] = [
   },
 ];
 
-const monthlySalary = 150000 / 12;
-const deductions = monthlySalary * 0.11 + monthlySalary * 0.275; // Dummy calculation
+const generatePayslips = (employeeId: string, baseSalary: number): Payslip[] => {
+    const payslips: Payslip[] = [];
+    const months = [
+        { month: 7, year: 2024, paymentDate: '2024-08-05' },
+        { month: 6, year: 2024, paymentDate: '2024-07-05' },
+        { month: 5, year: 2024, paymentDate: '2024-06-05' },
+    ];
 
-export const payslips: Payslip[] = [
-    {
-        id: 'ps1',
-        employeeId: '1',
-        month: 7,
-        year: 2024,
-        paymentDate: '2024-08-05',
-        grossSalary: monthlySalary,
-        deductions: deductions,
-        netSalary: monthlySalary - deductions,
-        url: '#',
-    },
-    {
-        id: 'ps2',
-        employeeId: '1',
-        month: 6,
-        year: 2024,
-        paymentDate: '2024-07-05',
-        grossSalary: monthlySalary,
-        deductions: deductions,
-        netSalary: monthlySalary - deductions,
-        url: '#',
-    },
-    {
-        id: 'ps3',
-        employeeId: '1',
-        month: 5,
-        year: 2024,
-        paymentDate: '2024-06-05',
-        grossSalary: monthlySalary,
-        deductions: deductions,
-        netSalary: monthlySalary - deductions,
-        url: '#',
-    }
-]
+    months.forEach((m, index) => {
+        const monthlySalary = baseSalary / 12;
+        const bonus = m.month === 6 ? monthlySalary * 0.2 : 0; // Exemplo de bônus em Junho
+        const earnings = [
+            { description: 'Salário Base', amount: monthlySalary },
+        ];
+        if (bonus > 0) {
+            earnings.push({ description: 'Bônus de Performance', amount: bonus });
+        }
+        
+        const grossSalary = earnings.reduce((acc, item) => acc + item.amount, 0);
+
+        const inss = grossSalary * 0.11;
+        const irrf = (grossSalary - inss) > 2826.65 ? (grossSalary - inss) * 0.15 : 0;
+        const valeTransporte = grossSalary * 0.06;
+
+        const deductions = [
+            { description: 'INSS', amount: inss },
+            { description: 'IRRF', amount: irrf },
+            { description: 'Vale Transporte', amount: valeTransporte },
+        ];
+
+        const totalDeductions = deductions.reduce((acc, item) => acc + item.amount, 0);
+        const netSalary = grossSalary - totalDeductions;
+
+        payslips.push({
+            id: `ps${employeeId}-${index + 1}`,
+            employeeId: employeeId,
+            month: m.month,
+            year: m.year,
+            paymentDate: m.paymentDate,
+            grossSalary: grossSalary,
+            totalDeductions: totalDeductions,
+            netSalary: netSalary,
+            url: '#',
+            earnings: earnings,
+            deductions: deductions,
+        });
+    });
+
+    return payslips;
+};
+
+export const payslips: Payslip[] = generatePayslips('1', 150000);
