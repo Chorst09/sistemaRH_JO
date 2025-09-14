@@ -55,8 +55,8 @@ export default function CompaniesPage() {
                     variant="outline"
                     className={cn(
                       'capitalize',
-                      company.status === 'Ativa' && 'bg-green-100 dark:bg-green-900/50 border-green-300 dark:border-green-800',
-                      company.status === 'Inativa' && 'bg-red-100 dark:bg-red-900/50 border-red-300 dark:border-red-800',
+                      company.status === 'Ativa' && 'border-green-300 bg-green-50 text-green-700 dark:bg-green-900/50 dark:border-green-800 dark:text-green-300',
+                      company.status === 'Inativa' && 'border-red-300 bg-red-50 text-red-700 dark:bg-red-900/50 dark:border-red-800 dark:text-red-300',
                     )}
                   >
                     {company.status}
