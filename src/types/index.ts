@@ -79,4 +79,5 @@ export type Company = {
   cnpj: string;
   taxRegime: TaxRegime;
   status: 'Ativa' | 'Inativa';
+  address?: string;
 };

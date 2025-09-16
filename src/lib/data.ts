@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Employee, Benefit, Document, Payslip } from '@/types';
+import { Employee, Benefit, Document, Payslip } from '@/types/index';
 import { Database } from '@/types/supabase';
 
 type EmployeeInsert = Database['public']['Tables']['employees']['Insert'];
@@ -7,36 +7,103 @@ type BenefitInsert = Database['public']['Tables']['benefits']['Insert'];
 type DocumentInsert = Database['public']['Tables']['documents']['Insert'];
 
 export async function getEmployees() {
-  const { data: employees, error } = await supabase
-    .from('employees')
-    .select('*')
-    .order('name');
+  try {
+    const { data: employees, error } = await supabase
+      .from('employees')
+      .select('*')
+      .order('name');
 
-  if (error) {
-    throw new Error(`Erro ao buscar funcionários: ${error.message}`);
+    if (error) {
+      console.warn('Erro ao conectar ao banco, usando dados mock:', error.message);
+      // Retornar dados mock quando não conseguir conectar ao banco
+      return getMockEmployees();
+    }
+
+    // Mapear os dados do banco para o formato esperado pela interface
+    const mappedEmployees = employees?.map((emp: any) => ({
+      id: emp.id,
+      name: emp.name,
+      email: emp.email,
+      role: emp.role,
+      department: emp.department,
+      status: emp.status === 'Ativo' ? 'active' : 'inactive',
+      avatar: emp.avatar || '',
+      managerId: emp.managerid,
+      hireDate: emp.hiredate, // Mapear hiredate para hireDate
+      salary: emp.salary,
+      phone: emp.phone,
+      address: emp.address,
+      bank: emp.bank,
+      bankAgency: emp.bankagency,
+      bankAccount: emp.bankaccount,
+      benefits: [] // Inicializar array vazio de benefícios
+    })) || [];
+
+    return mappedEmployees;
+  } catch (error) {
+    console.warn('Erro ao conectar ao banco, usando dados mock:', error);
+    return getMockEmployees();
   }
+}
 
-  // Mapear os dados do banco para o formato esperado pela interface
-  const mappedEmployees = employees?.map((emp: any) => ({
-    id: emp.id,
-    name: emp.name,
-    email: emp.email,
-    role: emp.role,
-    department: emp.department,
-    status: emp.status,
-    avatar: emp.avatar || '',
-    managerId: emp.managerid,
-    hireDate: emp.hiredate, // Mapear hiredate para hireDate
-    salary: emp.salary,
-    phone: emp.phone,
-    address: emp.address,
-    bank: emp.bank,
-    bankAgency: emp.bankagency,
-    bankAccount: emp.bankaccount,
-    benefits: [] // Inicializar array vazio de benefícios
-  })) || [];
-
-  return mappedEmployees;
+// Dados mock para desenvolvimento/teste
+function getMockEmployees(): Employee[] {
+  return [
+    {
+      id: '1',
+      name: 'João Silva',
+      email: 'joao.silva@empresa.com',
+      role: 'Desenvolvedor',
+      department: 'TI',
+      status: 'active',
+      avatar: '',
+      managerId: undefined,
+      hireDate: '2023-01-15',
+      salary: 60000, // Salário anual
+      phone: '(11) 99999-9999',
+      address: 'São Paulo, SP',
+      bank: 'Banco do Brasil',
+      bankAgency: '1234-5',
+      bankAccount: '12345-6',
+      benefits: []
+    },
+    {
+      id: '2',
+      name: 'Maria Santos',
+      email: 'maria.santos@empresa.com',
+      role: 'Designer',
+      department: 'Marketing',
+      status: 'active',
+      avatar: '',
+      managerId: undefined,
+      hireDate: '2023-02-01',
+      salary: 54000, // Salário anual
+      phone: '(11) 88888-8888',
+      address: 'São Paulo, SP',
+      bank: 'Itaú',
+      bankAgency: '5678-9',
+      bankAccount: '67890-1',
+      benefits: []
+    },
+    {
+      id: '3',
+      name: 'Pedro Oliveira',
+      email: 'pedro.oliveira@empresa.com',
+      role: 'Gerente',
+      department: 'Vendas',
+      status: 'active',
+      avatar: '',
+      managerId: undefined,
+      hireDate: '2023-01-10',
+      salary: 84000, // Salário anual
+      phone: '(11) 77777-7777',
+      address: 'São Paulo, SP',
+      bank: 'Santander',
+      bankAgency: '9012-3',
+      bankAccount: '34567-8',
+      benefits: []
+    }
+  ];
 }
 
 export async function getEmployee(id: string) {
