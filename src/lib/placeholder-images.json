@@ -1,0 +1,64 @@
+{
+  "placeholderImages": [
+    {
+      "id": "avatar-1",
+      "description": "Avatar of Sofia Ribeiro",
+      "imageUrl": "https://picsum.photos/seed/1/100/100",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "avatar-2",
+      "description": "Avatar of Arthur Costa",
+      "imageUrl": "https://picsum.photos/seed/2/100/100",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "avatar-3",
+      "description": "Avatar of Julia Martins",
+      "imageUrl": "https://picsum.photos/seed/3/100/100",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "avatar-4",
+      "description": "Avatar of Lucas Almeida",
+      "imageUrl": "https://picsum.photos/seed/4/100/100",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "avatar-5",
+      "description": "Avatar of Isabella Ferreira",
+      "imageUrl": "https://picsum.photos/seed/5/100/100",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "avatar-6",
+      "description": "Avatar of Davi Santos",
+      "imageUrl": "https://picsum.photos/seed/6/100/100",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "avatar-7",
+      "description": "Avatar of Laura Oliveira",
+      "imageUrl": "https://picsum.photos/seed/7/100/100",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "avatar-8",
+      "description": "Avatar of Bernardo Pereira",
+      "imageUrl": "https://picsum.photos/seed/8/100/100",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "avatar-9",
+      "description": "Avatar of Manuela Rodrigues",
+      "imageUrl": "https://picsum.photos/seed/9/100/100",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "avatar-10",
+      "description": "Avatar of Heitor Azevedo",
+      "imageUrl": "https://picsum.photos/seed/10/100/100",
+      "imageHint": "man portrait"
+    }
+  ]
+}
