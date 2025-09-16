@@ -13,9 +13,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { getCompanies } from '@/lib/company-data';
 import { PlusCircle, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Company } from '@/types';
 
 export default async function CompaniesPage() {
-  const companies = await getCompanies();
+  let companies: Company[] = [];
+  
+  try {
+    companies = await getCompanies();
+  } catch (error) {
+    console.error('Erro ao carregar empresas:', error);
+    // Durante o build/prerendering, retorna array vazio se a tabela não existir
+    companies = [];
+  }
+  
   return (
     <Card>
       <CardHeader>
