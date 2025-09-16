@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { employees, payslips } from '@/lib/data';
+import { getEmployees, getPayslips } from '@/lib/data';
 import { getMonthName } from '@/lib/utils';
 import { Employee, Payslip } from '@/types';
 import PayslipDetailDialog from '@/components/payslip/payslip-detail-dialog';
@@ -41,6 +41,44 @@ type MonthlyTotal = {
 
 export default function AdminPayslipPage() {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | undefined>();
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [payslips, setPayslips] = useState<Payslip[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadEmployees() {
+      try {
+        const employeesList = await getEmployees();
+        setEmployees(employeesList);
+      } catch (err) {
+        console.error('Erro ao carregar funcionários:', err);
+        setError(err instanceof Error ? err.message : 'Erro ao carregar funcionários');
+      }
+    }
+
+    loadEmployees();
+  }, []);
+
+  useEffect(() => {
+    async function loadPayslips() {
+      if (!selectedEmployeeId) return;
+
+      try {
+        const employeePayslips = await getPayslips(selectedEmployeeId);
+        setPayslips(prevPayslips => {
+          // Adiciona novos holerites mantendo os existentes de outros funcionários
+          const otherEmployeesPayslips = prevPayslips.filter(p => p.employee_id !== selectedEmployeeId);
+          return [...otherEmployeesPayslips, ...employeePayslips];
+        });
+      } catch (err) {
+        console.error('Erro ao carregar holerites:', err);
+        setError(err instanceof Error ? err.message : 'Erro ao carregar holerites');
+      }
+    }
+
+    loadPayslips();
+  }, [selectedEmployeeId]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -49,23 +87,47 @@ export default function AdminPayslipPage() {
   const monthlyTotals: MonthlyTotal[] = payslips.reduce((acc: MonthlyTotal[], payslip) => {
     const existingMonth = acc.find(m => m.month === payslip.month && m.year === payslip.year);
     if (existingMonth) {
-      existingMonth.totalGross += payslip.grossSalary;
-      existingMonth.totalDeductions += payslip.totalDeductions;
-      existingMonth.totalNet += payslip.netSalary;
+      existingMonth.totalGross += payslip.gross_salary;
+      existingMonth.totalDeductions += payslip.total_deductions;
+      existingMonth.totalNet += payslip.net_salary;
     } else {
       acc.push({
         month: payslip.month,
         year: payslip.year,
-        totalGross: payslip.grossSalary,
-        totalDeductions: payslip.totalDeductions,
-        totalNet: payslip.netSalary,
+        totalGross: payslip.gross_salary,
+        totalDeductions: payslip.total_deductions,
+        totalNet: payslip.net_salary,
       });
     }
     return acc;
   }, []).sort((a, b) => new Date(b.year, b.month - 1).getTime() - new Date(a.year, a.month - 1).getTime());
 
   const selectedEmployee = employees.find(e => e.id === selectedEmployeeId);
-  const selectedEmployeePayslips = selectedEmployeeId ? payslips.filter(p => p.employeeId === selectedEmployeeId).sort((a,b) => new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime()) : [];
+  const selectedEmployeePayslips = selectedEmployeeId 
+    ? payslips
+        .filter(p => p.employee_id === selectedEmployeeId)
+        .sort((a,b) => new Date(b.payment_date).getTime() - new Date(a.payment_date).getTime()) 
+    : [];
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="h-24 flex items-center justify-center">
+          <p className="text-muted-foreground">Carregando...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="h-24 flex items-center justify-center">
+          <p className="text-red-500">{error}</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Tabs defaultValue="overview" className="w-full">
@@ -91,14 +153,18 @@ export default function AdminPayslipPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {monthlyTotals.map(total => (
+                {monthlyTotals.length > 0 ? monthlyTotals.map(total => (
                   <TableRow key={`${total.year}-${total.month}`}>
                     <TableCell className="font-medium">{getMonthName(total.month)}/{total.year}</TableCell>
                     <TableCell>{formatCurrency(total.totalGross)}</TableCell>
                     <TableCell className="text-red-600">{formatCurrency(total.totalDeductions)}</TableCell>
                     <TableCell className="font-semibold">{formatCurrency(total.totalNet)}</TableCell>
                   </TableRow>
-                ))}
+                )) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center">Nenhum holerite encontrado.</TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </CardContent>
@@ -137,7 +203,7 @@ export default function AdminPayslipPage() {
                         {selectedEmployeePayslips.length > 0 ? selectedEmployeePayslips.map(payslip => (
                         <TableRow key={payslip.id}>
                             <TableCell className="font-medium">{getMonthName(payslip.month)}/{payslip.year}</TableCell>
-                            <TableCell className="font-semibold">{formatCurrency(payslip.netSalary)}</TableCell>
+                            <TableCell className="font-semibold">{formatCurrency(payslip.net_salary)}</TableCell>
                             <TableCell className="text-right">
                                 <PayslipDetailDialog payslip={payslip} employee={selectedEmployee}>
                                     <Button variant="outline" size="sm">

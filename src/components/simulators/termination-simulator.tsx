@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -20,7 +20,7 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Employee } from '@/types';
-import { employees } from '@/lib/data';
+import { getEmployees } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -48,10 +48,29 @@ export default function TerminationSimulator() {
     const [lastDay, setLastDay] = useState<Date | undefined>();
     const [isSimulating, setIsSimulating] = useState(false);
     const [calculation, setCalculation] = useState<TerminationCalculation | null>(null);
+    const [employees, setEmployees] = useState<Employee[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function loadEmployees() {
+            try {
+                const employeesList = await getEmployees();
+                setEmployees(employeesList);
+            } catch (err) {
+                console.error('Erro ao carregar funcionários:', err);
+                setError(err instanceof Error ? err.message : 'Erro ao carregar funcionários');
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        loadEmployees();
+    }, []);
 
     const selectedEmployee = useMemo(() => {
         return employees.find(e => e.id === selectedEmployeeId);
-    }, [selectedEmployeeId]);
+    }, [selectedEmployeeId, employees]);
 
     const handleSimulate = () => {
         if (!selectedEmployee || !terminationType || !lastDay) return;
@@ -101,6 +120,26 @@ export default function TerminationSimulator() {
         }, 1500);
     };
 
+    if (isLoading) {
+        return (
+            <Card>
+                <CardContent className="h-24 flex items-center justify-center">
+                    <p className="text-muted-foreground">Carregando...</p>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    if (error) {
+        return (
+            <Card>
+                <CardContent className="h-24 flex items-center justify-center">
+                    <p className="text-red-500">{error}</p>
+                </CardContent>
+            </Card>
+        );
+    }
+
     return (
         <Card>
             <CardHeader>
@@ -119,7 +158,7 @@ export default function TerminationSimulator() {
                                     <SelectValue placeholder="Selecione um funcionário" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {employees.filter(e => e.status === 'Ativo').map(e => (
+                                    {employees.filter(e => e.status === 'active').map(e => (
                                         <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
                                     ))}
                                 </SelectContent>

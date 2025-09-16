@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { suggestDataFieldsFromDocument } from '@/ai/flows/suggest-data-fields-from-document';
 import {
   Card,
@@ -21,113 +21,146 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { documents } from '@/lib/data';
+import { getDocuments, createDocument, deleteDocument } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
+import { Document } from '@/types';
 
 type AIResult = {
   documentType: string;
   suggestedFields: string[];
 };
 
-export default function DocumentSection() {
-  const [file, setFile] = useState<File | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+interface DocumentSectionProps {
+  employeeId: string;
+}
+
+export default function DocumentSection({ employeeId }: DocumentSectionProps) {
+  const [isUploading, setIsUploading] = useState(false);
   const [aiResult, setAiResult] = useState<AIResult | null>(null);
+  const [documents, setDocuments] = useState<Document[]>([]);
   const { toast } = useToast();
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setAiResult(null);
-    }
-  };
-
-  const readFileAsDataURI = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const handleAnalysis = async () => {
-    if (!file) {
-      toast({
-        title: 'Nenhum arquivo selecionado',
-        description: 'Por favor, escolha um arquivo para analisar.',
-        variant: 'destructive',
-      });
-      return;
+  useEffect(() => {
+    async function loadDocuments() {
+      const data = await getDocuments(employeeId);
+      setDocuments(data);
     }
 
-    setIsLoading(true);
+    loadDocuments();
+  }, [employeeId]);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
     setAiResult(null);
 
     try {
-      const documentDataUri = await readFileAsDataURI(file);
-      const result = await suggestDataFieldsFromDocument({ documentDataUri });
-      setAiResult(result);
+      // Primeiro, vamos analisar o documento com a IA
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const dataUri = e.target?.result as string;
+        try {
+          const result = await suggestDataFieldsFromDocument({ documentDataUri: dataUri });
+          setAiResult(result);
+
+          // Agora vamos salvar o documento
+          const newDocument = {
+            name: file.name,
+            type: result.documentType,
+            uploadDate: new Date().toISOString(),
+            url: '#', // Aqui você deve implementar o upload real para o Supabase Storage
+            employee_id: employeeId,
+          };
+
+          const savedDocument = await createDocument(newDocument);
+          if (savedDocument) {
+            setDocuments(prev => [...prev, savedDocument]);
+            toast({
+              title: 'Documento enviado com sucesso',
+              description: 'O documento foi analisado e salvo.',
+            });
+          }
+        } catch (error) {
+          console.error('Erro ao processar documento:', error);
+          toast({
+            title: 'Erro ao enviar documento',
+            description: 'Ocorreu um erro ao processar o documento.',
+            variant: 'destructive',
+          });
+        }
+      };
+      reader.readAsDataURL(file);
     } catch (error) {
-      console.error('Análise de IA falhou:', error);
+      console.error('Erro ao fazer upload:', error);
       toast({
-        title: 'Análise Falhou',
-        description: 'Ocorreu um erro ao analisar o documento.',
+        title: 'Erro ao enviar documento',
+        description: 'Ocorreu um erro ao enviar o documento.',
         variant: 'destructive',
       });
     } finally {
-      setIsLoading(false);
+      setIsUploading(false);
+    }
+  };
+
+  const handleDeleteDocument = async (documentId: string) => {
+    try {
+      const success = await deleteDocument(documentId);
+      if (success) {
+        setDocuments(prev => prev.filter(doc => doc.id !== documentId));
+        toast({
+          title: 'Documento excluído',
+          description: 'O documento foi removido com sucesso.',
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao excluir documento:', error);
+      toast({
+        title: 'Erro ao excluir documento',
+        description: 'Ocorreu um erro ao excluir o documento.',
+        variant: 'destructive',
+      });
     }
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Análise de Documentos</CardTitle>
+          <CardTitle>Upload de Documentos</CardTitle>
           <CardDescription>
-            Faça upload de um documento para que a IA sugira quais campos do perfil atualizar.
+            Faça upload de documentos para este funcionário.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Input type="file" onChange={handleFileChange} />
-            {file && (
-              <p className="text-sm text-muted-foreground">
-                Selecionado: {file.name}
-              </p>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <Input
+              type="file"
+              onChange={handleFileUpload}
+              disabled={isUploading}
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+            />
+            {isUploading && (
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             )}
           </div>
-          <Button onClick={handleAnalysis} disabled={isLoading || !file}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Analisando...
-              </>
-            ) : (
-              <>
-                <Upload className="mr-2 h-4 w-4" />
-                Analisar Documento
-              </>
-            )}
-          </Button>
+
           {aiResult && (
-            <Alert>
+            <Alert className="mt-4">
               <Lightbulb className="h-4 w-4" />
-              <AlertTitle>Análise Concluída!</AlertTitle>
-              <AlertDescription className="space-y-2 mt-2">
-                <div className="flex items-center gap-2">
-                    <Tags className="h-4 w-4 text-muted-foreground"/>
-                    <strong>Tipo de Documento:</strong> {aiResult.documentType}
-                </div>
+              <AlertTitle className="flex items-center gap-2">
+                <Tags className="h-4 w-4" />
+                Documento Analisado: {aiResult.documentType}
+              </AlertTitle>
+              <AlertDescription className="mt-4 space-y-4">
                 <div>
-                    <strong>Campos sugeridos para atualização:</strong>
-                    <ul className="list-disc list-inside mt-1">
-                        {aiResult.suggestedFields.map((field) => (
-                            <li key={field}>{field}</li>
-                        ))}
-                    </ul>
+                  <strong>Campos sugeridos para atualização:</strong>
+                  <ul className="list-disc list-inside mt-1">
+                    {aiResult.suggestedFields.map((field) => (
+                      <li key={field}>{field}</li>
+                    ))}
+                  </ul>
                 </div>
               </AlertDescription>
             </Alert>
@@ -159,13 +192,28 @@ export default function DocumentSection() {
                     {doc.name}
                   </TableCell>
                   <TableCell>{doc.type}</TableCell>
-                  <TableCell>{doc.uploadDate}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="outline" size="icon" asChild>
-                      <a href={doc.url}>
-                        <Download className="h-4 w-4" />
-                        <span className="sr-only">Baixar</span>
-                      </a>
+                  <TableCell>
+                    {new Date(doc.uploadDate).toLocaleDateString('pt-BR', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </TableCell>
+                  <TableCell className="text-right space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(doc.url, '_blank')}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteDocument(doc.id)}
+                    >
+                      <FileText className="h-4 w-4" />
+                      Excluir
                     </Button>
                   </TableCell>
                 </TableRow>

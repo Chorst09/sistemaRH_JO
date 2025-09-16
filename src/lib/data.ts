@@ -1,312 +1,380 @@
-import { Employee, AbsenceRequest, Document, Payslip } from '@/types';
+import { supabase } from './supabase';
+import { Employee, Benefit, Document, Payslip } from '@/types';
+import { Database } from '@/types/supabase';
 
-export const employees: Employee[] = [
-  {
-    id: '1',
-    name: 'Sofia Ribeiro',
-    email: 'sofia.ribeiro@hrvision.com',
-    role: 'CEO',
-    department: 'Engenharia',
-    status: 'Ativo',
-    avatar: 'https://picsum.photos/seed/1/100/100',
-    hireDate: '2020-01-15',
-    salary: 150000,
-    phone: '(11) 98765-4321',
-    address: 'Rua das Flores, 123, São Paulo, SP',
-    bank: 'Banco Vision',
-    bankAgency: '0001',
-    bankAccount: '12345-6',
-    benefits: [
-        {id: 'plano_saude'}, 
-        {id: 'plano_odontologico'}, 
-        {id: 'vale_refeicao', value: '950'}, 
-        {id: 'seguro_vida'}, 
-        {id: 'previdencia_privada'}
-    ],
-  },
-  {
-    id: '2',
-    name: 'Arthur Costa',
-    email: 'arthur.costa@hrvision.com',
-    role: 'Head de Engenharia',
-    department: 'Engenharia',
-    status: 'Ativo',
-    avatar: 'https://picsum.photos/seed/2/100/100',
-    managerId: '1',
-    hireDate: '2020-02-20',
-    salary: 120000,
-    phone: '(11) 98765-4322',
-    address: 'Av. Paulista, 456, São Paulo, SP',
-    bank: 'Banco Vision',
-    bankAgency: '0001',
-    bankAccount: '23456-7',
-    benefits: [
-        {id: 'plano_saude'},
-        {id: 'plano_odontologico'},
-        {id: 'vale_refeicao', value: '950'},
-    ],
-  },
-  {
-    id: '3',
-    name: 'Julia Martins',
-    email: 'julia.martins@hrvision.com',
-    role: 'Desenvolvedora Frontend',
-    department: 'Engenharia',
-    status: 'Ativo',
-    avatar: 'https://picsum.photos/seed/3/100/100',
-    managerId: '2',
-    hireDate: '2021-07-01',
-    salary: 80000,
-    phone: '(11) 98765-4323',
-    address: 'Rua Augusta, 789, São Paulo, SP',
-    bank: 'Banco Vision',
-    bankAgency: '0001',
-    bankAccount: '34567-8',
-    benefits: [
-        {id: 'plano_saude'},
-        {id: 'vale_transporte'},
-        {id: 'vale_refeicao', value: '800'},
-        {id: 'auxilio_creche', value: '450'},
-    ],
-  },
-  {
-    id: '4',
-    name: 'Lucas Almeida',
-    email: 'lucas.almeida@hrvision.com',
-    role: 'Desenvolvedor Backend',
-    department: 'Engenharia',
-    status: 'De Licença',
-    avatar: 'https://picsum.photos/seed/4/100/100',
-    managerId: '2',
-    hireDate: '2021-07-01',
-    salary: 85000,
-    phone: '(11) 98765-4324',
-    address: 'Rua da Consolação, 101, São Paulo, SP',
-    bank: 'Banco Vision',
-    bankAgency: '0001',
-    bankAccount: '45678-9',
-    benefits: [{id: 'plano_saude'}, {id: 'vale_refeicao', value: '800'}],
-  },
-  {
-    id: '5',
-    name: 'Isabella Ferreira',
-    email: 'isabella.ferreira@hrvision.com',
-    role: 'Head de Marketing',
-    department: 'Marketing',
-    status: 'Ativo',
-    avatar: 'https://picsum.photos/seed/5/100/100',
-    managerId: '1',
-    hireDate: '2020-03-10',
-    salary: 110000,
-    phone: '(21) 91234-5678',
-    address: 'Av. Rio Branco, 202, Rio de Janeiro, RJ',
-    bank: 'Banco Vision',
-    bankAgency: '0001',
-    bankAccount: '56789-0',
-    benefits: [{id: 'plano_saude'}, {id: 'seguro_vida'}],
-  },
-  {
-    id: '6',
-    name: 'Davi Santos',
-    email: 'davi.santos@hrvision.com',
-    role: 'Analista de Marketing',
-    department: 'Marketing',
-    status: 'Ativo',
-    avatar: 'https://picsum.photos/seed/6/100/100',
-    managerId: '5',
-    hireDate: '2022-01-20',
-    salary: 70000,
-    phone: '(21) 91234-5679',
-    address: 'Rua do Ouvidor, 303, Rio de Janeiro, RJ',
-    bank: 'Banco Vision',
-    bankAgency: '0001',
-    bankAccount: '67890-1',
-    benefits: [{id: 'vale_refeicao', value: '750'}, {id: 'vale_transporte'}],
-  },
-  {
-    id: '7',
-    name: 'Laura Oliveira',
-    email: 'laura.oliveira@hrvision.com',
-    role: 'Head de Vendas',
-    department: 'Vendas',
-    status: 'Ativo',
-    avatar: 'https://picsum.photos/seed/7/100/100',
-    managerId: '1',
-    hireDate: '2020-04-01',
-    salary: 115000,
-    phone: '(31) 98888-7777',
-    address: 'Av. Afonso Pena, 404, Belo Horizonte, MG',
-    bank: 'Banco Vision',
-    bankAgency: '0001',
-    bankAccount: '78901-2',
-    benefits: [{id: 'plano_saude'}, {id: 'previdencia_privada'}],
-  },
-  {
-    id: '8',
-    name: 'Bernardo Pereira',
-    email: 'bernardo.pereira@hrvision.com',
-    role: 'Representante de Vendas',
-    department: 'Vendas',
-    status: 'Ativo',
-    avatar: 'https://picsum.photos/seed/8/100/100',
-    managerId: '7',
-    hireDate: '2022-05-15',
-    salary: 75000,
-    phone: '(31) 98888-7778',
-    address: 'Rua da Bahia, 505, Belo Horizonte, MG',
-    bank: 'Banco Vision',
-    bankAgency: '0001',
-    bankAccount: '89012-3',
-    benefits: [{id: 'plano_saude'}, {id: 'vale_refeicao', value: '750'}],
-  },
-  {
-    id: '9',
-    name: 'Manuela Rodrigues',
-    email: 'manuela.rodrigues@hrvision.com',
-    role: 'Head de Design',
-    department: 'Design',
-    status: 'Ativo',
-    avatar: 'https://picsum.photos/seed/9/100/100',
-    managerId: '1',
-    hireDate: '2020-06-01',
-    salary: 110000,
-    phone: '(41) 99999-8888',
-    address: 'Rua XV de Novembro, 606, Curitiba, PR',
-    bank: 'Banco Vision',
-    bankAgency: '0001',
-    bankAccount: '90123-4',
-    benefits: [{id: 'plano_saude'}, {id: 'plano_odontologico'}, {id: 'seguro_vida'}],
-  },
-  {
-    id: '10',
-    name: 'Heitor Azevedo',
-    email: 'heitor.azevedo@hrvision.com',
-    role: 'Designer UI/UX',
-    department: 'Design',
-    status: 'Demitido',
-    avatar: 'https://picsum.photos/seed/10/100/100',
-    managerId: '9',
-    hireDate: '2021-11-11',
-    salary: 78000,
-    phone: '(41) 99999-8889',
-    address: 'Alameda Dr. Muricy, 707, Curitiba, PR',
-    bank: 'Banco Vision',
-    bankAgency: '0001',
-    bankAccount: '01234-5',
-    benefits: [],
-  },
-];
+type EmployeeInsert = Database['public']['Tables']['employees']['Insert'];
+type BenefitInsert = Database['public']['Tables']['benefits']['Insert'];
+type DocumentInsert = Database['public']['Tables']['documents']['Insert'];
 
-export const absenceRequests: AbsenceRequest[] = [
-  {
-    id: 'req1',
-    employeeId: '3',
-    type: 'Férias',
-    startDate: '2024-09-16',
-    endDate: '2024-09-20',
-    status: 'Aprovado',
-  },
-  {
-    id: 'req2',
-    employeeId: '4',
-    type: 'Licença Médica',
-    startDate: '2024-08-19',
-    endDate: '2024-08-23',
-    status: 'Aprovado',
-    reason: 'Gripe',
-  },
-  {
-    id: 'req3',
-    employeeId: '6',
-    type: 'Férias',
-    startDate: '2024-10-07',
-    endDate: '2024-10-11',
-    status: 'Pendente',
-  },
-  {
-    id: 'req4',
-    employeeId: '8',
-    type: 'Pessoal',
-    startDate: '2024-08-26',
-    endDate: '2024-08-26',
-    status: 'Negado',
-    reason: 'Prazo da equipe',
-  },
-];
+export async function getEmployees() {
+  const { data: employees, error } = await supabase
+    .from('employees')
+    .select('*')
+    .order('name');
 
-export const documents: Document[] = [
-  {
-    id: 'doc1',
-    name: 'RG.pdf',
-    type: 'Identificação',
-    uploadDate: '2021-07-01',
-    url: '#',
-  },
-  {
-    id: 'doc2',
-    name: 'Comprovante_Residencia.pdf',
-    type: 'Endereço',
-    uploadDate: '2021-07-01',
-    url: '#',
-  },
-  {
-    id: 'doc3',
-    name: 'Contrato_Trabalho.pdf',
-    type: 'Contrato',
-    uploadDate: '2021-07-01',
-    url: '#',
-  },
-];
+  if (error) {
+    throw new Error(`Erro ao buscar funcionários: ${error.message}`);
+  }
 
-const generatePayslips = (employee: Employee): Payslip[] => {
-    const payslips: Payslip[] = [];
-    const months = [
-        { month: 7, year: 2024, paymentDate: '2024-08-05' },
-        { month: 6, year: 2024, paymentDate: '2024-07-05' },
-        { month: 5, year: 2024, paymentDate: '2024-06-05' },
-    ];
+  // Mapear os dados do banco para o formato esperado pela interface
+  const mappedEmployees = employees?.map((emp: any) => ({
+    id: emp.id,
+    name: emp.name,
+    email: emp.email,
+    role: emp.role,
+    department: emp.department,
+    status: emp.status,
+    avatar: emp.avatar || '',
+    managerId: emp.managerid,
+    hireDate: emp.hiredate, // Mapear hiredate para hireDate
+    salary: emp.salary,
+    phone: emp.phone,
+    address: emp.address,
+    bank: emp.bank,
+    bankAgency: emp.bankagency,
+    bankAccount: emp.bankaccount,
+    benefits: [] // Inicializar array vazio de benefícios
+  })) || [];
 
-    months.forEach((m, index) => {
-        const monthlySalary = employee.salary / 12;
-        const bonus = m.month === 6 ? monthlySalary * 0.2 : 0; // Exemplo de bônus em Junho
-        const earnings = [
-            { description: 'Salário Base', amount: monthlySalary },
-        ];
-        if (bonus > 0) {
-            earnings.push({ description: 'Bônus de Performance', amount: bonus });
-        }
-        
-        const grossSalary = earnings.reduce((acc, item) => acc + item.amount, 0);
+  return mappedEmployees;
+}
 
-        const inss = grossSalary * 0.11;
-        const irrf = (grossSalary - inss) > 2826.65 ? (grossSalary - inss) * 0.15 : 0;
-        const valeTransporte = grossSalary * 0.06;
+export async function getEmployee(id: string) {
+  const { data: employee, error } = await supabase
+    .from('employees')
+    .select(`
+      *,
+      benefits (
+        *
+      ),
+      documents (
+        *
+      )
+    `)
+    .eq('id', id)
+    .single();
 
-        const deductions = [
-            { description: 'INSS', amount: inss },
-            { description: 'IRRF', amount: irrf },
-            { description: 'Vale Transporte', amount: valeTransporte },
-        ];
+  if (error) {
+    throw new Error(`Erro ao buscar funcionário: ${error.message}`);
+  }
 
-        const totalDeductions = deductions.reduce((acc, item) => acc + item.amount, 0);
-        const netSalary = grossSalary - totalDeductions;
+  if (!employee) {
+    return null;
+  }
 
-        payslips.push({
-            id: `ps${employee.id}-${index + 1}`,
-            employeeId: employee.id,
-            month: m.month,
-            year: m.year,
-            paymentDate: m.paymentDate,
-            grossSalary: grossSalary,
-            totalDeductions: totalDeductions,
-            netSalary: netSalary,
-            url: '#',
-            earnings: earnings,
-            deductions: deductions,
-        });
-    });
+  // Mapear os campos do banco para o formato esperado pelo frontend
+  const mappedEmployee: any = {
+    id: employee.id,
+    name: employee.name,
+    email: employee.email,
+    role: employee.role,
+    department: employee.department,
+    status: employee.status,
+    avatar: employee.avatar || '',
+    managerId: employee.managerid,
+    hireDate: employee.hiredate, // Mapear hiredate para hireDate
+    salary: employee.salary,
+    phone: employee.phone,
+    address: employee.address,
+    bank: employee.bank,
+    bankAgency: employee.bankagency,
+    bankAccount: employee.bankaccount,
+    benefits: employee.benefits || [],
+    documents: employee.documents || []
+  };
 
-    return payslips;
-};
+  return mappedEmployee;
+}
 
-export const payslips: Payslip[] = employees.flatMap(emp => generatePayslips(emp));
+export async function createEmployee(employeeData: any, benefits: any[]) {
+  try {
+    console.log('Dados recebidos para criação:', employeeData);
+    
+    // Separar os benefícios dos dados do funcionário
+    const { benefits: _, ...employeeWithoutBenefits } = employeeData;
+    
+    // Validar e formatar a data de contratação
+    let formattedHireDate: string;
+    if (employeeWithoutBenefits.hireDate) {
+      const hireDate = new Date(employeeWithoutBenefits.hireDate);
+      if (isNaN(hireDate.getTime())) {
+        throw new Error('Data de contratação inválida');
+      }
+      // Formatar para YYYY-MM-DD (formato aceito pelo PostgreSQL)
+      formattedHireDate = hireDate.toISOString().split('T')[0];
+    } else {
+      throw new Error('Data de contratação é obrigatória');
+    }
+    
+    // Mapear os dados para o formato do banco
+    const employeeForDB: EmployeeInsert = {
+      name: employeeWithoutBenefits.name,
+      email: employeeWithoutBenefits.email,
+      role: employeeWithoutBenefits.role,
+      department: employeeWithoutBenefits.department,
+      hiredate: formattedHireDate,
+      salary: employeeWithoutBenefits.salary,
+      phone: employeeWithoutBenefits.phone || null,
+      address: employeeWithoutBenefits.address || null,
+      bank: employeeWithoutBenefits.bank || null,
+      bankagency: employeeWithoutBenefits.bankAgency || null,
+      bankaccount: employeeWithoutBenefits.bankAccount || null,
+      status: 'Ativo'
+    };
+
+    console.log('Dados formatados para o banco:', employeeForDB);
+
+    // Inserir o funcionário
+    const { data: employee, error: employeeError } = await supabase
+      .from('employees')
+      .insert(employeeForDB)
+      .select()
+      .single();
+
+    if (employeeError) {
+      console.error('Erro ao inserir funcionário:', employeeError);
+      throw new Error(`Erro ao criar funcionário: ${employeeError.message}`);
+    }
+
+    if (!employee) {
+      throw new Error('Funcionário não foi criado');
+    }
+
+    console.log('Funcionário criado com sucesso:', employee);
+
+    // Inserir os benefícios se existirem
+    if (benefits && benefits.length > 0) {
+      const benefitsForDB: BenefitInsert[] = benefits.map((benefit: any) => ({
+        employee_id: employee.id,
+        benefit_type: benefit.type || benefit.id,
+        value: benefit.value ? parseFloat(benefit.value) : null
+      }));
+
+      const { error: benefitsError } = await supabase
+        .from('benefits')
+        .insert(benefitsForDB);
+
+      if (benefitsError) {
+        console.error('Erro ao inserir benefícios:', benefitsError);
+        // Não falhar se os benefícios não foram inseridos
+      }
+    }
+
+    return employee;
+  } catch (error) {
+    console.error('Erro detalhado ao criar funcionário:', error);
+    throw error;
+  }
+}
+
+export async function updateEmployee(id: string, employee: Partial<Employee>) {
+  const { data, error } = await supabase
+    .from('employees')
+    .update(employee)
+    .eq('id', id)
+    .returns<Employee>()
+    .single();
+
+  if (error) {
+    throw new Error(`Erro ao atualizar funcionário: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function deleteEmployee(id: string) {
+  const { error } = await supabase
+    .from('employees')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(`Erro ao deletar funcionário: ${error.message}`);
+  }
+
+  return true;
+}
+
+export async function getBenefits(employeeId: string) {
+  const { data: benefits, error } = await supabase
+    .from('benefits')
+    .select('*')
+    .returns<Benefit[]>()
+    .eq('employee_id', employeeId);
+
+  if (error) {
+    throw new Error(`Erro ao buscar benefícios: ${error.message}`);
+  }
+
+  return benefits;
+}
+
+export async function createBenefit(benefit: Omit<Benefit, 'id'>) {
+  const { data, error } = await supabase
+    .from('benefits')
+    .insert([benefit])
+    .returns<Benefit>()
+    .single();
+
+  if (error) {
+    throw new Error(`Erro ao criar benefício: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function updateBenefit(id: string, benefit: Partial<Benefit>) {
+  const { data, error } = await supabase
+    .from('benefits')
+    .update(benefit)
+    .eq('id', id)
+    .returns<Benefit>()
+    .single();
+
+  if (error) {
+    throw new Error(`Erro ao atualizar benefício: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function deleteBenefit(id: string) {
+  const { error } = await supabase
+    .from('benefits')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(`Erro ao deletar benefício: ${error.message}`);
+  }
+
+  return true;
+}
+
+export async function getDocuments(employeeId: string) {
+  const { data: documents, error } = await supabase
+    .from('documents')
+    .select('*')
+    .returns<Document[]>()
+    .eq('employee_id', employeeId);
+
+  if (error) {
+    throw new Error(`Erro ao buscar documentos: ${error.message}`);
+  }
+
+  return documents;
+}
+
+export async function createDocument(document: Omit<Document, 'id'>) {
+  const { data, error } = await supabase
+    .from('documents')
+    .insert([document])
+    .returns<Document>()
+    .single();
+
+  if (error) {
+    throw new Error(`Erro ao criar documento: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function updateDocument(id: string, document: Partial<Document>) {
+  const { data, error } = await supabase
+    .from('documents')
+    .update(document)
+    .eq('id', id)
+    .returns<Document>()
+    .single();
+
+  if (error) {
+    throw new Error(`Erro ao atualizar documento: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function deleteDocument(id: string) {
+  const { error } = await supabase
+    .from('documents')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(`Erro ao deletar documento: ${error.message}`);
+  }
+
+  return true;
+}
+
+export async function getPayslips(employeeId: string) {
+  const { data: payslips, error } = await supabase
+    .from('payslips')
+    .select('*')
+    .returns<Payslip[]>()
+    .eq('employee_id', employeeId)
+    .order('payment_date', { ascending: false });
+
+  if (error) {
+    throw new Error(`Erro ao buscar holerites: ${error.message}`);
+  }
+
+  return payslips;
+}
+
+export async function getPayslip(id: string) {
+  const { data: payslip, error } = await supabase
+    .from('payslips')
+    .select('*')
+    .returns<Payslip>()
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    throw new Error(`Erro ao buscar holerite: ${error.message}`);
+  }
+
+  return payslip;
+}
+
+export async function createPayslip(payslip: Omit<Payslip, 'id'>) {
+  const { data, error } = await supabase
+    .from('payslips')
+    .insert([payslip])
+    .returns<Payslip>()
+    .single();
+
+  if (error) {
+    throw new Error(`Erro ao criar holerite: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function updatePayslip(id: string, payslip: Partial<Payslip>) {
+  const { data, error } = await supabase
+    .from('payslips')
+    .update(payslip)
+    .eq('id', id)
+    .returns<Payslip>()
+    .single();
+
+  if (error) {
+    throw new Error(`Erro ao atualizar holerite: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function deletePayslip(id: string) {
+  const { error } = await supabase
+    .from('payslips')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(`Erro ao deletar holerite: ${error.message}`);
+  }
+
+  return true;
+}

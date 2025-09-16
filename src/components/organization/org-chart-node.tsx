@@ -31,7 +31,7 @@ export default function OrgChartNode({ employeeId, employeeMap, childrenMap }: O
         <Card className="w-64 min-h-[7rem] hover:shadow-lg hover:border-primary transition-all duration-200">
           <CardContent className="p-4 flex items-center gap-4">
             <Avatar className="h-16 w-16">
-              <AvatarImage src={employee.avatar} />
+              <AvatarImage src={employee.avatar_url} />
               <AvatarFallback>{employee.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
             </Avatar>
             <div>
@@ -53,10 +53,10 @@ export default function OrgChartNode({ employeeId, employeeMap, childrenMap }: O
               <div key={childId} className="flex flex-col items-center relative px-4">
                 {/* Horizontal line */}
                 {childrenIds.length > 1 && (
-                    <div className="absolute top-0 h-px bg-border" style={{
-                        left: index === 0 ? '50%' : '0',
-                        right: index === childrenIds.length - 1 ? '50%' : '0'
-                    }} />
+                  <div className="absolute top-0 h-px bg-border" style={{
+                    left: index === 0 ? '50%' : '0',
+                    right: index === childrenIds.length - 1 ? '50%' : '0'
+                  }} />
                 )}
 
                 {/* Vertical line up to horizontal line */}

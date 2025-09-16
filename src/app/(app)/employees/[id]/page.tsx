@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { employees as initialEmployees } from '@/lib/data';
+import { useEffect, useState } from 'react';
+import { getEmployee, updateEmployee } from '@/lib/data';
+import { getBenefitsCatalog } from '@/lib/benefits-data';
 import { notFound } from 'next/navigation';
 import {
   Avatar,
@@ -28,38 +29,55 @@ import {
   Settings
 } from 'lucide-react';
 import DocumentSection from './document-section';
-import { benefits as allBenefits } from '@/lib/benefits-data';
 import { Button } from '@/components/ui/button';
 import ManageBenefitsDialog from '@/components/benefits/manage-benefits-dialog';
-import { EmployeeBenefit } from '@/types';
+import { Employee, EmployeeBenefit } from '@/types';
+import { Benefit } from '@/lib/benefits-data';
 
 export default function EmployeeProfilePage({
   params,
 }: {
   params: { id: string };
 }) {
-  const [employees, setEmployees] = useState(initialEmployees);
-  const employee = employees.find((e) => e.id === params.id);
+  const [employee, setEmployee] = useState<Employee | null>(null);
+  const [allBenefits, setAllBenefits] = useState<Benefit[]>([]);
+
+  useEffect(() => {
+    async function loadEmployee() {
+      const data = await getEmployee(params.id);
+      if (data) {
+        setEmployee(data);
+      }
+    }
+
+    async function loadBenefits() {
+      const benefits = await getBenefitsCatalog();
+      setAllBenefits(benefits);
+    }
+
+    loadEmployee();
+    loadBenefits();
+  }, [params.id]);
 
   if (!employee) {
-    notFound();
+    return <div>Carregando...</div>;
   }
 
-  const handleBenefitsChange = (employeeId: string, newBenefits: EmployeeBenefit[]) => {
-    setEmployees(prevEmployees => 
-        prevEmployees.map(emp => 
-            emp.id === employeeId ? { ...emp, benefits: newBenefits } : emp
-        )
-    );
+  const handleBenefitsChange = async (employeeId: string, newBenefits: EmployeeBenefit[]) => {
+    const updatedEmployee = await updateEmployee(employeeId, { benefits: newBenefits });
+    if (updatedEmployee) {
+      setEmployee(updatedEmployee);
+    }
   };
 
   const infoItems = [
     { icon: BadgeInfo, label: 'Cargo', value: employee.role },
     { icon: Briefcase, label: 'Departamento', value: employee.department },
+    { icon: BadgeInfo, label: 'Status', value: employee.status },
     { icon: Mail, label: 'Email', value: employee.email },
     { icon: Phone, label: 'Telefone', value: employee.phone },
     { icon: MapPin, label: 'Endereço', value: employee.address },
-    { icon: CalendarDays, label: 'Data de Contratação', value: new Date(employee.hireDate).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' }) },
+    { icon: CalendarDays, label: 'Data de Contratação', value: employee.hireDate ? new Date(employee.hireDate).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Data não informada' },
   ];
   
   const employeeBenefitDetails = employee.benefits.map(empBenefit => {
@@ -193,7 +211,7 @@ export default function EmployeeProfilePage({
           </div>
         </TabsContent>
         <TabsContent value="documents" className="mt-4">
-          <DocumentSection />
+          <DocumentSection employeeId={employee.id} />
         </TabsContent>
       </Tabs>
     </div>

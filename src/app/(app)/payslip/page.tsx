@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -14,23 +17,73 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { payslips, employees } from '@/lib/data';
 import { Download, ReceiptText, Eye } from 'lucide-react';
 import { getMonthName } from '@/lib/utils';
 import PayslipDetailDialog from '@/components/payslip/payslip-detail-dialog';
+import { getEmployee, getPayslips } from '@/lib/data';
+import { Employee, Payslip } from '@/types';
 
 export default function PayslipPage() {
-  const currentUser = employees.find(e => e.id === '1'); // Assuming current user is CEO
+  const [currentUser, setCurrentUser] = useState<Employee | null>(null);
+  const [payslips, setPayslips] = useState<Payslip[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!currentUser) {
-    return null;
-  }
+  useEffect(() => {
+    async function loadData() {
+      try {
+        // Buscar o usuário atual (CEO)
+        const employee = await getEmployee('1'); // Assumindo que o CEO tem ID 1
+        setCurrentUser(employee);
 
-  const userPayslips = payslips.filter(p => p.employeeId === currentUser.id)
-    .sort((a, b) => new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime());
+        // Buscar os holerites do usuário
+        if (employee) {
+          const userPayslips = await getPayslips(employee.id);
+          setPayslips(userPayslips);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar dados:', err);
+        setError(err instanceof Error ? err.message : 'Erro ao carregar dados');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  }
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="h-24 flex items-center justify-center">
+          <p className="text-muted-foreground">Carregando...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="h-24 flex items-center justify-center">
+          <p className="text-red-500">{error}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <Card>
+        <CardContent className="h-24 flex items-center justify-center">
+          <p className="text-muted-foreground">Usuário não encontrado.</p>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -56,13 +109,13 @@ export default function PayslipPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {userPayslips.length > 0 ? userPayslips.map(payslip => (
+            {payslips.length > 0 ? payslips.map(payslip => (
               <TableRow key={payslip.id}>
                 <TableCell className="font-medium">{getMonthName(payslip.month)}/{payslip.year}</TableCell>
-                <TableCell>{new Date(payslip.paymentDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
-                <TableCell>{formatCurrency(payslip.grossSalary)}</TableCell>
-                <TableCell className="text-red-600">{formatCurrency(payslip.totalDeductions)}</TableCell>
-                <TableCell className="font-semibold">{formatCurrency(payslip.netSalary)}</TableCell>
+                <TableCell>{new Date(payslip.payment_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
+                <TableCell>{formatCurrency(payslip.gross_salary)}</TableCell>
+                <TableCell className="text-red-600">{formatCurrency(payslip.total_deductions)}</TableCell>
+                <TableCell className="font-semibold">{formatCurrency(payslip.net_salary)}</TableCell>
                 <TableCell className="text-right space-x-2">
                   <PayslipDetailDialog payslip={payslip} employee={currentUser}>
                     <Button variant="outline" size="sm">
@@ -71,7 +124,7 @@ export default function PayslipPage() {
                     </Button>
                   </PayslipDetailDialog>
                   <Button variant="outline" size="sm" asChild>
-                    <a href={payslip.url}>
+                    <a href={payslip.url} target="_blank" rel="noopener noreferrer">
                       <Download className="mr-2 h-4 w-4" />
                       Baixar
                     </a>

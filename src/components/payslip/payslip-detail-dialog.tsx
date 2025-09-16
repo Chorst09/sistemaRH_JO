@@ -30,6 +30,18 @@ export default function PayslipDetailDialog({ children, employee, payslip }: Pay
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   }
 
+  // Exemplo de proventos e descontos (em uma aplicação real, estes dados viriam do banco)
+  const earnings = [
+    { description: 'Salário Base', amount: payslip.gross_salary },
+    // Adicione outros proventos conforme necessário
+  ];
+
+  const deductions = [
+    { description: 'INSS', amount: payslip.total_deductions * 0.6 }, // 60% dos descontos
+    { description: 'IRRF', amount: payslip.total_deductions * 0.4 }, // 40% dos descontos
+    // Adicione outros descontos conforme necessário
+  ];
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -51,7 +63,7 @@ export default function PayslipDetailDialog({ children, employee, payslip }: Pay
                 <div className="text-right">
                     <p className="font-semibold">HR Vision Inc.</p>
                     <p className="text-muted-foreground">CNPJ: 12.345.678/0001-99</p>
-                    <p className="text-muted-foreground">Data de Pagamento: {new Date(payslip.paymentDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</p>
+                    <p className="text-muted-foreground">Data de Pagamento: {new Date(payslip.payment_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</p>
                 </div>
             </div>
 
@@ -66,7 +78,7 @@ export default function PayslipDetailDialog({ children, employee, payslip }: Pay
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {payslip.earnings.map((item, index) => (
+                            {earnings.map((item, index) => (
                                 <TableRow key={`earning-${index}`}>
                                     <TableCell>{item.description}</TableCell>
                                     <TableCell className="text-right">{formatCurrency(item.amount)}</TableCell>
@@ -85,7 +97,7 @@ export default function PayslipDetailDialog({ children, employee, payslip }: Pay
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {payslip.deductions.map((item, index) => (
+                            {deductions.map((item, index) => (
                                 <TableRow key={`deduction-${index}`}>
                                     <TableCell>{item.description}</TableCell>
                                     <TableCell className="text-right text-red-600">{formatCurrency(item.amount)}</TableCell>
@@ -101,15 +113,15 @@ export default function PayslipDetailDialog({ children, employee, payslip }: Pay
             <div className="grid grid-cols-3 gap-4 font-medium">
                 <div className="p-2 rounded-md">
                     <p className="text-sm text-muted-foreground">Total de Proventos</p>
-                    <p className="text-lg">{formatCurrency(payslip.grossSalary)}</p>
+                    <p className="text-lg">{formatCurrency(payslip.gross_salary)}</p>
                 </div>
                 <div className="p-2 rounded-md">
                     <p className="text-sm text-muted-foreground">Total de Descontos</p>
-                    <p className="text-lg text-red-600">{formatCurrency(payslip.totalDeductions)}</p>
+                    <p className="text-lg text-red-600">{formatCurrency(payslip.total_deductions)}</p>
                 </div>
                  <div className="p-2 rounded-md bg-green-100 dark:bg-green-900/50">
                     <p className="text-sm text-green-800 dark:text-green-300">Valor Líquido a Receber</p>
-                    <p className="text-lg font-bold text-green-800 dark:text-green-300">{formatCurrency(payslip.netSalary)}</p>
+                    <p className="text-lg font-bold text-green-800 dark:text-green-300">{formatCurrency(payslip.net_salary)}</p>
                 </div>
             </div>
         </div>
@@ -117,7 +129,7 @@ export default function PayslipDetailDialog({ children, employee, payslip }: Pay
         <DialogFooter className="mt-4">
           <Button variant="outline" onClick={() => setOpen(false)}>Fechar</Button>
           <Button asChild>
-            <a href={payslip.url}>
+            <a href={payslip.url} target="_blank" rel="noopener noreferrer">
                 <Download className="mr-2 h-4 w-4" />
                 Baixar Holerite (PDF)
             </a>

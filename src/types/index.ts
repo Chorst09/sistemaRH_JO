@@ -8,7 +8,7 @@ export type Employee = {
   name: string;
   email: string;
   role: string;
-  department: 'Engenharia' | 'Marketing' | 'Vendas' | 'Recursos Humanos' | 'Design';
+  department: string;
   status: 'Ativo' | 'De Licença' | 'Demitido';
   avatar: string;
   managerId?: string;

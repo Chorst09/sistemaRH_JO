@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 import { Employee } from '@/types';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { employees } from '@/lib/data';
+import { getEmployees } from '@/lib/data';
 
 type VacationCalculation = {
     grossVacation: number;
@@ -41,10 +41,27 @@ export default function VacationSimulator() {
   const [sellOneThird, setSellOneThird] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
   const [calculation, setCalculation] = useState<VacationCalculation | null>(null);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadEmployees() {
+      try {
+        const data = await getEmployees();
+        setEmployees(data);
+      } catch (error) {
+        console.error('Erro ao carregar funcionários:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadEmployees();
+  }, []);
 
   const selectedEmployee = useMemo(() => {
     return employees.find(e => e.id === selectedEmployeeId);
-  }, [selectedEmployeeId]);
+  }, [selectedEmployeeId, employees]);
 
   const vacationDays = useMemo(() => {
     if (dateRange.from && dateRange.to) {
@@ -112,7 +129,7 @@ export default function VacationSimulator() {
                         <Label htmlFor="employee-vacation">Funcionário</Label>
                         <Select onValueChange={setSelectedEmployeeId} value={selectedEmployeeId || ''}>
                             <SelectTrigger id="employee-vacation">
-                                <SelectValue placeholder="Selecione um funcionário" />
+                                <SelectValue placeholder={isLoading ? "Carregando..." : "Selecione um funcionário"} />
                             </SelectTrigger>
                             <SelectContent>
                                 {employees.filter(e => e.status === 'Ativo').map(e => (

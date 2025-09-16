@@ -10,11 +10,12 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { companies } from '@/lib/company-data';
+import { getCompanies } from '@/lib/company-data';
 import { PlusCircle, Building } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function CompaniesPage() {
+export default async function CompaniesPage() {
+  const companies = await getCompanies();
   return (
     <Card>
       <CardHeader>

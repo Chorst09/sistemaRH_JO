@@ -18,14 +18,14 @@ export interface Database {
           department: string
           status: string
           avatar: string | null
-          managerId: string | null
-          hireDate: string
+          managerid: string | null
+          hiredate: string
           salary: number
           phone: string | null
           address: string | null
           bank: string | null
-          bankAgency: string | null
-          bankAccount: string | null
+          bankagency: string | null
+          bankaccount: string | null
           created_at: string
           updated_at: string
         }
@@ -37,14 +37,14 @@ export interface Database {
           department: string
           status?: string
           avatar?: string | null
-          managerId?: string | null
-          hireDate: string
+          managerid?: string | null
+          hiredate: string
           salary: number
           phone?: string | null
           address?: string | null
           bank?: string | null
-          bankAgency?: string | null
-          bankAccount?: string | null
+          bankagency?: string | null
+          bankaccount?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -56,14 +56,14 @@ export interface Database {
           department?: string
           status?: string
           avatar?: string | null
-          managerId?: string | null
-          hireDate?: string
+          managerid?: string | null
+          hiredate?: string
           salary?: number
           phone?: string | null
           address?: string | null
           bank?: string | null
-          bankAgency?: string | null
-          bankAccount?: string | null
+          bankagency?: string | null
+          bankaccount?: string | null
           created_at?: string
           updated_at?: string
         }

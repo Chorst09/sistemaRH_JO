@@ -5,10 +5,12 @@ import {
   CardTitle,
   CardDescription,
 } from '@/components/ui/card';
-import { benefits } from '@/lib/benefits-data';
+import { getBenefitsCatalog } from '@/lib/benefits-data';
 import { CheckCircle } from 'lucide-react';
 
-export default function BenefitsPage() {
+export default async function BenefitsPage() {
+  const benefits = await getBenefitsCatalog();
+
   return (
     <div className="space-y-6">
       <div>

@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -16,39 +19,179 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { absenceRequests, employees } from '@/lib/data';
+import { getEmployee } from '@/lib/data';
 import { PlusCircle, CheckCircle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Employee } from '@/types';
+import { supabase } from '@/lib/supabase';
+
+type AbsenceRequest = {
+  id: string;
+  employee_id: string;
+  start_date: string;
+  end_date: string;
+  status: 'pending' | 'approved' | 'rejected';
+  type: string;
+  created_at: string;
+  updated_at: string;
+};
 
 export default function AbsencePage() {
-  const currentUser = employees.find(e => e.id === '1'); // Assuming current user is CEO
+  const [currentUser, setCurrentUser] = useState<Employee | null>(null);
+  const [myAbsenceRequests, setMyAbsenceRequests] = useState<AbsenceRequest[]>([]);
+  const [teamAbsenceRequests, setTeamAbsenceRequests] = useState<AbsenceRequest[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [employeeNames, setEmployeeNames] = useState<Record<string, string>>({});
 
-  if (!currentUser) {
-    return null;
-  }
+  useEffect(() => {
+    async function loadData() {
+      try {
+        // Buscar o usuário atual (CEO)
+        const employee = await getEmployee('1'); // Assumindo que o CEO tem ID 1
+        setCurrentUser(employee);
 
-  const getEmployeeName = (employeeId: string) => {
-    return employees.find(e => e.id === employeeId)?.name || 'Desconhecido';
-  };
+        if (employee) {
+          // Buscar as solicitações de ausência do usuário
+          const { data: myRequests, error: myRequestsError } = await supabase
+            .from('absence_requests')
+            .select('*')
+            .eq('employee_id', employee.id)
+            .neq('type', 'vacation')
+            .order('created_at', { ascending: false });
 
-  const statusBadge = (status: 'Pendente' | 'Aprovado' | 'Negado') => {
+          if (myRequestsError) throw myRequestsError;
+          setMyAbsenceRequests(myRequests || []);
+
+          // Buscar as solicitações pendentes da equipe
+          const { data: teamRequests, error: teamRequestsError } = await supabase
+            .from('absence_requests')
+            .select('*')
+            .eq('status', 'pending')
+            .neq('employee_id', employee.id)
+            .neq('type', 'vacation')
+            .order('created_at', { ascending: false });
+
+          if (teamRequestsError) throw teamRequestsError;
+          setTeamAbsenceRequests(teamRequests || []);
+
+          // Buscar nomes dos funcionários para as solicitações da equipe
+          if (teamRequests) {
+            const employeeIds = [...new Set(teamRequests.map(r => r.employee_id))];
+            const { data: employees, error: employeesError } = await supabase
+              .from('employees')
+              .select('id, name')
+              .in('id', employeeIds);
+
+            if (employeesError) throw employeesError;
+            
+            const namesMap: Record<string, string> = {};
+            employees?.forEach(emp => {
+              namesMap[emp.id] = emp.name;
+            });
+            setEmployeeNames(namesMap);
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao carregar dados:', err);
+        setError(err instanceof Error ? err.message : 'Erro ao carregar dados');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  const statusBadge = (status: 'pending' | 'approved' | 'rejected') => {
+    const statusMap = {
+      pending: 'Pendente',
+      approved: 'Aprovado',
+      rejected: 'Negado'
+    };
+
     return (
       <Badge
         variant="outline"
         className={cn(
           'capitalize',
-          status === 'Aprovado' && 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-800',
-          status === 'Pendente' && 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-800',
-          status === 'Negado' && 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800'
+          status === 'approved' && 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-800',
+          status === 'pending' && 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-800',
+          status === 'rejected' && 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800'
         )}
       >
-        {status}
+        {statusMap[status]}
       </Badge>
     );
   };
 
-  const myRequests = absenceRequests.filter(r => r.employeeId === currentUser.id && r.type !== 'Férias'); 
-  const teamRequests = absenceRequests.filter(r => r.status === 'Pendente' && r.employeeId !== currentUser.id && r.type !== 'Férias');
+  const handleApproveRequest = async (requestId: string) => {
+    try {
+      const { error } = await supabase
+        .from('absence_requests')
+        .update({ status: 'approved' })
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      // Atualizar a lista de solicitações da equipe
+      setTeamAbsenceRequests(prev => 
+        prev.filter(request => request.id !== requestId)
+      );
+    } catch (err) {
+      console.error('Erro ao aprovar solicitação:', err);
+      // Aqui você pode adicionar uma notificação de erro para o usuário
+    }
+  };
+
+  const handleRejectRequest = async (requestId: string) => {
+    try {
+      const { error } = await supabase
+        .from('absence_requests')
+        .update({ status: 'rejected' })
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      // Atualizar a lista de solicitações da equipe
+      setTeamAbsenceRequests(prev => 
+        prev.filter(request => request.id !== requestId)
+      );
+    } catch (err) {
+      console.error('Erro ao rejeitar solicitação:', err);
+      // Aqui você pode adicionar uma notificação de erro para o usuário
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="h-24 flex items-center justify-center">
+          <p className="text-muted-foreground">Carregando...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="h-24 flex items-center justify-center">
+          <p className="text-red-500">{error}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <Card>
+        <CardContent className="h-24 flex items-center justify-center">
+          <p className="text-muted-foreground">Usuário não encontrado.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Tabs defaultValue="my-absences" className="w-full">
@@ -81,11 +224,11 @@ export default function AbsencePage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {myRequests.length > 0 ? myRequests.map(request => (
+                {myAbsenceRequests.length > 0 ? myAbsenceRequests.map(request => (
                   <TableRow key={request.id}>
                     <TableCell>{request.type}</TableCell>
-                    <TableCell>{new Date(request.startDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
-                    <TableCell>{new Date(request.endDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
+                    <TableCell>{new Date(request.start_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
+                    <TableCell>{new Date(request.end_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
                     <TableCell>{statusBadge(request.status)}</TableCell>
                   </TableRow>
                 )) : (
@@ -115,16 +258,26 @@ export default function AbsencePage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {teamRequests.length > 0 ? teamRequests.map(request => (
+                {teamAbsenceRequests.length > 0 ? teamAbsenceRequests.map(request => (
                   <TableRow key={request.id}>
-                    <TableCell>{getEmployeeName(request.employeeId)}</TableCell>
+                    <TableCell>{employeeNames[request.employee_id] || 'Desconhecido'}</TableCell>
                     <TableCell>{request.type}</TableCell>
-                    <TableCell>{new Date(request.startDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})} a {new Date(request.endDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
+                    <TableCell>{new Date(request.start_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})} a {new Date(request.end_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
                     <TableCell className="text-right space-x-2">
-                      <Button variant="outline" size="icon" className="text-green-600 hover:text-green-700">
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="text-green-600 hover:text-green-700"
+                        onClick={() => handleApproveRequest(request.id)}
+                      >
                         <CheckCircle className="h-4 w-4" />
                       </Button>
-                       <Button variant="outline" size="icon" className="text-red-600 hover:text-red-700">
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="text-red-600 hover:text-red-700"
+                        onClick={() => handleRejectRequest(request.id)}
+                      >
                         <XCircle className="h-4 w-4" />
                       </Button>
                     </TableCell>

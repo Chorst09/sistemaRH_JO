@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import {
   Table,
@@ -15,11 +17,53 @@ import {
 } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { employees } from '@/lib/data';
+import { getEmployees } from '@/lib/data';
 import { PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
+import { Employee } from '@/types';
 
 export default function EmployeesPage() {
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadEmployees() {
+      try {
+        const data = await getEmployees();
+        setEmployees(data);
+      } catch (err) {
+        console.error('Erro ao carregar funcionários:', err);
+        setError(err instanceof Error ? err.message : 'Erro ao carregar funcionários');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadEmployees();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="h-24 flex items-center justify-center">
+          <p className="text-muted-foreground">Carregando...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="h-24 flex items-center justify-center">
+          <p className="text-red-500">{error}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -30,7 +74,7 @@ export default function EmployeesPage() {
           </div>
           <Button asChild>
             <Link href="/employees/new">
-              <PlusCircle />
+              <PlusCircle className="mr-2 h-4 w-4" />
               Adicionar Funcionário
             </Link>
           </Button>
@@ -50,7 +94,7 @@ export default function EmployeesPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {employees.map((employee) => (
+            {employees.length > 0 ? employees.map((employee) => (
               <TableRow key={employee.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -74,12 +118,14 @@ export default function EmployeesPage() {
                     variant="outline"
                     className={cn(
                       'capitalize',
-                      employee.status === 'Ativo' && 'bg-green-100 dark:bg-green-900/50 border-green-300 dark:border-green-800',
-                      employee.status === 'De Licença' && 'bg-yellow-100 dark:bg-yellow-900/50 border-yellow-300 dark:border-yellow-800',
-                      employee.status === 'Demitido' && 'bg-red-100 dark:bg-red-900/50 border-red-300 dark:border-red-800',
+                      employee.status === 'active' && 'bg-green-100 dark:bg-green-900/50 border-green-300 dark:border-green-800',
+                      employee.status === 'on_leave' && 'bg-yellow-100 dark:bg-yellow-900/50 border-yellow-300 dark:border-yellow-800',
+                      employee.status === 'terminated' && 'bg-red-100 dark:bg-red-900/50 border-red-300 dark:border-red-800',
                     )}
                   >
-                    {employee.status}
+                    {employee.status === 'active' && 'Ativo'}
+                    {employee.status === 'on_leave' && 'De Licença'}
+                    {employee.status === 'terminated' && 'Demitido'}
                   </Badge>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
@@ -97,7 +143,13 @@ export default function EmployeesPage() {
                   </Link>
                 </TableCell>
               </TableRow>
-            ))}
+            )) : (
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center">
+                  Nenhum funcionário encontrado.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </CardContent>

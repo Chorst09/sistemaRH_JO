@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -15,48 +18,119 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { absenceRequests, employees } from '@/lib/data';
-import { PlusCircle, CheckCircle, XCircle, CalendarClock, Plane } from 'lucide-react';
+import { getEmployee } from '@/lib/data';
+import { PlusCircle, CalendarClock, Plane } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import RequestVacationDialog from '@/components/absence/request-vacation-dialog';
+import { Employee } from '@/types';
+import { supabase } from '@/lib/supabase';
+
+type VacationRequest = {
+  id: string;
+  employee_id: string;
+  start_date: string;
+  end_date: string;
+  status: 'pending' | 'approved' | 'rejected';
+  type: 'vacation';
+  created_at: string;
+  updated_at: string;
+};
 
 export default function VacationPage() {
-  const currentUser = employees.find(e => e.id === '1'); // Assuming current user is CEO
+  const [currentUser, setCurrentUser] = useState<Employee | null>(null);
+  const [vacationRequests, setVacationRequests] = useState<VacationRequest[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!currentUser) {
-    return null;
-  }
+  useEffect(() => {
+    async function loadData() {
+      try {
+        // Buscar o usuário atual (CEO)
+        const employee = await getEmployee('1'); // Assumindo que o CEO tem ID 1
+        setCurrentUser(employee);
 
-  const getEmployeeName = (employeeId: string) => {
-    return employees.find(e => e.id === employeeId)?.name || 'Desconhecido';
-  };
+        // Buscar as solicitações de férias do usuário
+        if (employee) {
+          const { data: requests, error: requestsError } = await supabase
+            .from('vacation_requests')
+            .select('*')
+            .eq('employee_id', employee.id)
+            .eq('type', 'vacation')
+            .order('created_at', { ascending: false });
 
-  const statusBadge = (status: 'Pendente' | 'Aprovado' | 'Negado') => {
+          if (requestsError) throw requestsError;
+          setVacationRequests(requests || []);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar dados:', err);
+        setError(err instanceof Error ? err.message : 'Erro ao carregar dados');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  const statusBadge = (status: 'pending' | 'approved' | 'rejected') => {
+    const statusMap = {
+      pending: 'Pendente',
+      approved: 'Aprovado',
+      rejected: 'Negado'
+    };
+
     return (
       <Badge
         variant="outline"
         className={cn(
           'capitalize',
-          status === 'Aprovado' && 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-800',
-          status === 'Pendente' && 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-800',
-          status === 'Negado' && 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800'
+          status === 'approved' && 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/50 dark:text-green-300 dark:border-green-800',
+          status === 'pending' && 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/50 dark:text-yellow-300 dark:border-yellow-800',
+          status === 'rejected' && 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/50 dark:text-red-300 dark:border-red-800'
         )}
       >
-        {status}
+        {statusMap[status]}
       </Badge>
     );
   };
 
-  const myRequests = absenceRequests.filter(r => r.employeeId === currentUser.id && r.type === 'Férias');
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="h-24 flex items-center justify-center">
+          <p className="text-muted-foreground">Carregando...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="h-24 flex items-center justify-center">
+          <p className="text-red-500">{error}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <Card>
+        <CardContent className="h-24 flex items-center justify-center">
+          <p className="text-muted-foreground">Usuário não encontrado.</p>
+        </CardContent>
+      </Card>
+    );
+  }
   
-  // Simple logic for acquisition/concession period
-  const hireDate = new Date(currentUser.hireDate);
+  // Lógica para período aquisitivo/concessivo
+  const hireDate = new Date(currentUser.admission_date);
   const now = new Date();
   const yearsOfService = now.getFullYear() - hireDate.getFullYear();
-  const acquisitionStart = new Date(hireDate.setFullYear(hireDate.getFullYear() + yearsOfService -1));
+  const acquisitionStart = new Date(hireDate.setFullYear(hireDate.getFullYear() + yearsOfService - 1));
   const acquisitionEnd = new Date(new Date(acquisitionStart).setFullYear(acquisitionStart.getFullYear() + 1));
   const concessionEnd = new Date(new Date(acquisitionEnd).setFullYear(acquisitionEnd.getFullYear() + 1));
-
 
   return (
     <div className="space-y-6">
@@ -121,11 +195,11 @@ export default function VacationPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {myRequests.length > 0 ? myRequests.map(request => (
+                {vacationRequests.length > 0 ? vacationRequests.map(request => (
                   <TableRow key={request.id}>
-                    <TableCell>{request.type}</TableCell>
-                    <TableCell>{new Date(request.startDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
-                    <TableCell>{new Date(request.endDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
+                    <TableCell>Férias</TableCell>
+                    <TableCell>{new Date(request.start_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
+                    <TableCell>{new Date(request.end_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
                     <TableCell>{statusBadge(request.status)}</TableCell>
                   </TableRow>
                 )) : (

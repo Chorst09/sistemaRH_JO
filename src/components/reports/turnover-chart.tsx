@@ -1,30 +1,66 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Line, LineChart, CartesianGrid, XAxis, ResponsiveContainer, YAxis, Tooltip } from 'recharts';
-import {
-  ChartContainer,
-  ChartTooltipContent,
-} from '@/components/ui/chart';
+import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
+import { supabase } from '@/lib/supabase';
 
-const chartData = [
-  { month: 'Jan', rate: 1.2 },
-  { month: 'Feb', rate: 0.8 },
-  { month: 'Mar', rate: 1.5 },
-  { month: 'Apr', rate: 1.1 },
-  { month: 'May', rate: 2.0 },
-  { month: 'Jun', rate: 0.5 },
-  { month: 'Jul', rate: 1.3 },
-  { month: 'Aug', rate: 0.9 },
-];
-
-const chartConfig = {
-  rate: {
-    label: 'Turnover Rate (%)',
-    color: 'hsl(var(--chart-2))',
-  },
+type TurnoverData = {
+  month: string;
+  rate: number;
 };
 
 export default function TurnoverChart() {
+  const [chartData, setChartData] = useState<TurnoverData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const { data: turnoverData, error } = await supabase
+          .from('turnover_rates')
+          .select('month, rate')
+          .order('month', { ascending: true });
+
+        if (error) {
+          console.error('Erro ao carregar dados de turnover:', error);
+          return;
+        }
+
+        setChartData(turnoverData);
+      } catch (error) {
+        console.error('Erro ao processar dados de turnover:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  const chartConfig = {
+    rate: {
+      label: 'Taxa de Turnover (%)',
+      color: 'hsl(var(--chart-2))',
+    },
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[200px] w-full aspect-auto flex items-center justify-center">
+        <p className="text-muted-foreground">Carregando gráfico...</p>
+      </div>
+    );
+  }
+
+  if (chartData.length === 0) {
+    return (
+      <div className="min-h-[200px] w-full aspect-auto flex items-center justify-center">
+        <p className="text-muted-foreground">Nenhum dado disponível</p>
+      </div>
+    );
+  }
+
   return (
     <ChartContainer config={chartConfig} className="min-h-[200px] w-full aspect-auto">
       <ResponsiveContainer width="100%" height={300}>
@@ -36,7 +72,7 @@ export default function TurnoverChart() {
             axisLine={false}
             tickMargin={8}
           />
-           <YAxis 
+          <YAxis 
             tickFormatter={(value) => `${value}%`}
           />
           <Tooltip content={<ChartTooltipContent />} />
