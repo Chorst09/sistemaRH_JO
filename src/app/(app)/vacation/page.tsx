@@ -45,12 +45,37 @@ export default function VacationPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        // Buscar o usuário atual (CEO)
-        const employee = await getEmployee('1'); // Assumindo que o CEO tem ID 1
-        setCurrentUser(employee);
+        // Buscar o primeiro funcionário disponível
+        const { data: employees, error: employeesError } = await supabase
+          .from('employees')
+          .select('*')
+          .limit(1);
 
-        // Buscar as solicitações de férias do usuário
-        if (employee) {
+        if (employeesError) throw employeesError;
+
+        if (employees && employees.length > 0) {
+          const employee = employees[0] as any;
+          // Mapear os dados para o formato esperado
+           const mappedEmployee: Employee = {
+             id: employee.id,
+             name: employee.name,
+             email: employee.email,
+             role: employee.role,
+             department: employee.department,
+             status: employee.status,
+             managerId: employee.managerid,
+             hireDate: employee.hiredate,
+             salary: employee.salary,
+             phone: employee.phone || '',
+             address: employee.address || '',
+             bank: employee.bank || '',
+             bankAgency: employee.bankagency || '',
+             bankAccount: employee.bankaccount || '',
+             benefits: []
+           };
+          setCurrentUser(mappedEmployee);
+
+          // Buscar as solicitações de férias do usuário
           const { data: requests, error: requestsError } = await supabase
             .from('vacation_requests')
             .select('*')
@@ -60,6 +85,8 @@ export default function VacationPage() {
 
           if (requestsError) throw requestsError;
           setVacationRequests(requests || []);
+        } else {
+          setError('Nenhum funcionário encontrado. Execute a migração do banco de dados.');
         }
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
@@ -141,12 +168,14 @@ export default function VacationPage() {
                 <CardTitle className="flex items-center gap-2"><Plane /> Férias</CardTitle>
                 <CardDescription>Suas solicitações e saldos de férias.</CardDescription>
               </div>
-              <RequestVacationDialog employee={currentUser}>
-                <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Solicitar Férias
-                </Button>
-              </RequestVacationDialog>
+              {currentUser && (
+                <RequestVacationDialog employee={currentUser}>
+                  <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Solicitar Férias
+                  </Button>
+                </RequestVacationDialog>
+              )}
             </div>
           </CardHeader>
           <CardContent>
