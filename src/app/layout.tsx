@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Toaster } from '@/components/ui/toaster';
 import { Inter } from 'next/font/google'
-import { AuthProvider } from '@/components/auth/auth-provider';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
@@ -19,9 +18,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning className="dark">
       <body className={`${inter.variable} font-body antialiased`}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        {children}
         <Toaster />
       </body>
     </html>
