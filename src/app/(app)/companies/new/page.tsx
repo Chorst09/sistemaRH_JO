@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -21,10 +22,13 @@ import {
 } from '@/components/ui/select';
 import { Building, ArrowLeft, Save, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { createCompany } from '@/lib/company-data';
 
 export default function NewCompanyPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const [isFetchingCnpj, setIsFetchingCnpj] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [razaoSocial, setRazaoSocial] = useState('');
   const [cnpj, setCnpj] = useState('');
@@ -77,12 +81,51 @@ export default function NewCompanyPage() {
   };
 
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast({
-        title: "Empresa Adicionada (Simulação)",
-        description: "Em uma aplicação real, a nova empresa seria salva no banco de dados.",
-    });
+    setIsSubmitting(true);
+
+    try {
+      // Validar campos obrigatórios
+      if (!razaoSocial || !cnpj || !taxRegime || !status) {
+        toast({
+          title: "Campos obrigatórios",
+          description: "Por favor, preencha todos os campos obrigatórios.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Criar objeto da empresa
+      const companyData = {
+        name: razaoSocial,
+        cnpj: cnpj,
+        taxRegime: taxRegime as 'Simples Nacional' | 'Lucro Presumido' | 'Lucro Real',
+        status: status as 'Ativa' | 'Inativa',
+        address: address || null
+      };
+
+      // Criar empresa no banco de dados
+      await createCompany(companyData);
+
+      toast({
+        title: "Empresa criada com sucesso!",
+        description: "A nova empresa foi salva no sistema.",
+      });
+
+      // Redirecionar para a lista de empresas
+      router.push('/companies');
+
+    } catch (error) {
+      console.error('Erro ao criar empresa:', error);
+      toast({
+        title: "Erro ao criar empresa",
+        description: "Ocorreu um erro ao salvar a empresa. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -166,9 +209,18 @@ export default function NewCompanyPage() {
                     <Button variant="outline" asChild>
                         <Link href="/companies">Cancelar</Link>
                     </Button>
-                    <Button type="submit" disabled={isFetchingCnpj}>
-                        <Save className="mr-2 h-4 w-4" />
-                        Salvar Empresa
+                    <Button type="submit" disabled={isFetchingCnpj || isSubmitting}>
+                        {isSubmitting ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Salvando...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="mr-2 h-4 w-4" />
+                            Salvar Empresa
+                          </>
+                        )}
                     </Button>
                 </div>
             </form>
