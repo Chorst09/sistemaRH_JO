@@ -1,0 +1,13 @@
+# Vercel ignore file
+.next/
+node_modules/
+.env.local
+.env
+*.log
+.DS_Store
+.vscode/
+*.md
+*.sql
+src/components/debug/
+src/lib/test-*
+src/app/(app)/test-*
