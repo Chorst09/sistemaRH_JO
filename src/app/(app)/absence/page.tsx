@@ -75,7 +75,7 @@ export default function AbsencePage() {
              bankAgency: employee.bankagency || '',
              bankAccount: employee.bankaccount || '',
              benefits: []
-           } as Employee;
+           } as unknown as Employee;
           setCurrentUser(mappedEmployee);
 
           // Buscar as solicitações de ausência do usuário
