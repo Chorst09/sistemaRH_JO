@@ -15,5 +15,5 @@
   ],
   "cleanUrls": true,
   "trailingSlash": false,
-  "buildCommand": "rm -rf src/app/\\(app\\)/empresas/ 2>/dev/null || true && npm run build"
+  "buildCommand": "npm run build"
 }
