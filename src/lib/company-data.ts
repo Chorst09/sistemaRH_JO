@@ -74,6 +74,7 @@ function dbToCompany(dbCompany: any): Company {
   };
 }
 
+// Exportações disponíveis: getCompanies, getCompany, createCompany, updateCompany, deleteCompany
 export async function getCompanies(): Promise<Company[]> {
   try {
     console.log('=== BUSCANDO EMPRESAS ===');
