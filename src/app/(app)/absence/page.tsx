@@ -22,7 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { getEmployee } from '@/lib/data';
 import { PlusCircle, CheckCircle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Employee } from '@/types';
+import type { Employee } from '@/types';
 import { supabase } from '@/lib/supabase';
 
 type AbsenceRequest = {
@@ -58,7 +58,7 @@ export default function AbsencePage() {
         if (employees && employees.length > 0) {
           const employee = employees[0] as any;
           // Mapear os dados para o formato esperado
-           const mappedEmployee: Employee = {
+           const mappedEmployee = {
              id: employee.id,
              name: employee.name,
              email: employee.email,
@@ -66,7 +66,7 @@ export default function AbsencePage() {
              department: employee.department,
              status: employee.status,
              avatar: employee.avatar || '',
-             managerId: employee.managerid || undefined,
+             managerId: employee.managerid,
              hireDate: employee.hiredate,
              salary: employee.salary,
              phone: employee.phone || '',
@@ -75,7 +75,7 @@ export default function AbsencePage() {
              bankAgency: employee.bankagency || '',
              bankAccount: employee.bankaccount || '',
              benefits: []
-           };
+           } as Employee;
           setCurrentUser(mappedEmployee);
 
           // Buscar as solicitações de ausência do usuário
