@@ -9,7 +9,9 @@ export type Benefit = {
   hasValue: boolean;
 };
 
-export type BenefitDB = Omit<Benefit, 'icon'>;
+export type BenefitDB = Omit<Benefit, 'icon'> & {
+  has_value?: boolean; // Coluna do banco pode ter nome diferente
+};
 
 export const benefitIcons: Record<string, LucideIcon> = {
   plano_saude: Stethoscope,
@@ -86,11 +88,19 @@ export async function getBenefitsCatalog(): Promise<Benefit[]> {
       console.warn('Erro ao buscar catálogo de benefícios do banco, usando dados estáticos:', error);
       return staticBenefits;
     }
-
-    return benefitsCatalog.map(benefit => ({
-      ...benefit,
-      icon: benefitIcons[benefit.id] || Stethoscope,
-    }));
+    
+    const mappedBenefits = benefitsCatalog.map(benefit => {
+      // Lidar com diferentes nomes de coluna no banco
+      const hasValueFromDB = benefit.hasValue ?? benefit.has_value ?? true;
+      
+      return {
+        ...benefit,
+        hasValue: hasValueFromDB,
+        icon: benefitIcons[benefit.id] || Stethoscope,
+      };
+    });
+    
+    return mappedBenefits;
   } catch (error) {
     console.warn('Erro ao conectar com o banco, usando dados estáticos:', error);
     return staticBenefits;

@@ -1,83 +1,51 @@
-# Sistema RH
+# HR Vision
 
-Sistema de Recursos Humanos desenvolvido para a JO Ferragens.
+Um sistema de RH avançado para empresas modernas.
 
 ## Configuração do Ambiente
 
-### Variáveis de Ambiente no Vercel
-
-Para configurar as variáveis de ambiente no Vercel, siga os passos abaixo:
-
-1. Acesse o [Dashboard do Vercel](https://vercel.com/dashboard)
-2. Selecione o projeto do Sistema RH
-3. Vá para a aba "Settings"
-4. Na seção "Environment Variables", adicione as seguintes variáveis:
-
-```
-NEXT_PUBLIC_SUPABASE_URL=sua_url_do_supabase
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
-```
-
-Você pode encontrar esses valores no [Dashboard do Supabase](https://app.supabase.com):
-1. Selecione seu projeto
-2. Vá para "Settings" > "API"
-3. Copie os valores de "Project URL" e "anon public" para as respectivas variáveis de ambiente
-
-### Desenvolvimento Local
-
-Para rodar o projeto localmente:
-
 1. Clone o repositório
-```bash
-git clone https://github.com/seu-usuario/sistemaRH_JO.git
-cd sistemaRH_JO
-```
-
-2. Instale as dependências
+2. Instale as dependências:
 ```bash
 npm install
 ```
 
-3. Crie um arquivo `.env.local` na raiz do projeto com as mesmas variáveis de ambiente do Vercel:
+3. Configure as variáveis de ambiente:
+Crie um arquivo `.env.local` na raiz do projeto com as seguintes variáveis:
 ```
 NEXT_PUBLIC_SUPABASE_URL=sua_url_do_supabase
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anon_do_supabase
 ```
 
-4. Inicie o servidor de desenvolvimento
+4. Configure o Supabase:
+- Execute os scripts SQL na seguinte ordem no SQL Editor do Supabase:
+  1. `supabase/migrations/auth.sql`
+  2. `supabase/migrations/auth-policies.sql`
+  3. `supabase/migrations/companies-migration.sql`
+  4. `supabase/migrations/companies-policies.sql`
+  5. `supabase/migrations/create-initial-user.sql`
+
+5. Inicie o servidor de desenvolvimento:
 ```bash
 npm run dev
 ```
 
-O projeto estará disponível em [http://localhost:3000](http://localhost:3000)
+## Credenciais Iniciais
 
-## Tecnologias Utilizadas
-
-- [Next.js](https://nextjs.org/)
-- [React](https://reactjs.org/)
-- [Supabase](https://supabase.com/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [shadcn/ui](https://ui.shadcn.com/)
-- [Recharts](https://recharts.org/)
+- Email: admin@hrvision.com
+- Senha: Admin@123
 
 ## Estrutura do Projeto
 
-```
-src/
-├── ai/              # Configurações e fluxos de IA
-├── app/             # Rotas e páginas da aplicação
-├── components/      # Componentes reutilizáveis
-├── hooks/           # Hooks personalizados
-├── lib/            # Funções utilitárias e configurações
-└── types/          # Definições de tipos TypeScript
-```
+- `src/app/` - Páginas e layouts da aplicação
+- `src/components/` - Componentes reutilizáveis
+- `src/lib/` - Utilitários e configurações
+- `src/hooks/` - Hooks personalizados
+- `supabase/` - Scripts SQL e migrações
 
-## Funcionalidades
+## Tecnologias
 
-- Gestão de funcionários
-- Controle de benefícios
-- Organograma
-- Relatórios e gráficos
-- Simuladores (férias, rescisão, etc.)
-- Upload e gestão de documentos
-- Autenticação e autorização
+- Next.js 14
+- Supabase (Autenticação e Banco de Dados)
+- Tailwind CSS
+- shadcn/ui

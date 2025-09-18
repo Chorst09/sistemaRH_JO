@@ -1,50 +1,33 @@
--- Habilitar a extensão de autenticação do Supabase (caso ainda não esteja habilitada)
-create extension if not exists "uuid-ossp";
+-- Garante que o RLS está habilitado nas tabelas do schema public
+ALTER TABLE IF EXISTS public.companies ENABLE ROW LEVEL SECURITY;
 
--- Configurar políticas de autenticação
-ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
+-- Remove políticas existentes para evitar conflitos
+DROP POLICY IF EXISTS "Usuários autenticados podem ver empresas" ON public.companies;
+DROP POLICY IF EXISTS "Usuários autenticados podem criar empresas" ON public.companies;
+DROP POLICY IF EXISTS "Usuários autenticados podem atualizar empresas" ON public.companies;
+DROP POLICY IF EXISTS "Usuários autenticados podem deletar empresas" ON public.companies;
 
--- Permitir que usuários autenticados vejam seus próprios dados
-CREATE POLICY "Users can view own data" ON auth.users
-  FOR SELECT
-  TO authenticated
-  USING (auth.uid() = id);
+-- Cria políticas para a tabela companies
+CREATE POLICY "Usuários autenticados podem ver empresas"
+ON public.companies FOR SELECT
+TO authenticated
+USING (true);
 
--- Criar um usuário de teste com senha simples para debug
-INSERT INTO auth.users (
-  instance_id,
-  id,
-  aud,
-  role,
-  email,
-  encrypted_password,
-  email_confirmed_at,
-  recovery_sent_at,
-  last_sign_in_at,
-  raw_app_meta_data,
-  raw_user_meta_data,
-  created_at,
-  updated_at,
-  confirmation_token,
-  email_change,
-  email_change_token_new,
-  recovery_token
-) VALUES (
-  '00000000-0000-0000-0000-000000000000',
-  uuid_generate_v4(),
-  'authenticated',
-  'authenticated',
-  'teste@teste.com',
-  crypt('teste123', gen_salt('bf')),
-  current_timestamp,
-  current_timestamp,
-  current_timestamp,
-  '{"provider": "email", "providers": ["email"]}',
-  '{}',
-  current_timestamp,
-  current_timestamp,
-  '',
-  '',
-  '',
-  ''
-) ON CONFLICT (email) DO NOTHING;
+CREATE POLICY "Usuários autenticados podem criar empresas"
+ON public.companies FOR INSERT
+TO authenticated
+WITH CHECK (true);
+
+CREATE POLICY "Usuários autenticados podem atualizar empresas"
+ON public.companies FOR UPDATE
+TO authenticated
+USING (true)
+WITH CHECK (true);
+
+CREATE POLICY "Usuários autenticados podem deletar empresas"
+ON public.companies FOR DELETE
+TO authenticated
+USING (true);
+
+-- Notifica o PostgREST para recarregar o schema
+NOTIFY pgrst, 'reload schema';

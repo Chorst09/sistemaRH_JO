@@ -1,5 +1,9 @@
 import { Company } from '@/types/index';
 import { supabase } from './supabase';
+import { Database } from '@/types/supabase';
+
+type CompanyInsert = Database['public']['Tables']['companies']['Insert'];
+type CompanyUpdate = Database['public']['Tables']['companies']['Update'];
 
 // Chave para armazenamento local
 const LOCAL_STORAGE_KEY = 'hr_vision_companies';
@@ -58,21 +62,38 @@ function saveLocalCompanies(companies: Company[]): void {
   }
 }
 
+// Função para converter dados do DB para o formato da aplicação
+function dbToCompany(dbCompany: any): Company {
+  return {
+    id: dbCompany.id,
+    name: dbCompany.name,
+    cnpj: dbCompany.cnpj,
+    taxRegime: dbCompany.taxregime || dbCompany.tax_regime, // Suporta ambos os nomes
+    status: dbCompany.status,
+    address: dbCompany.address
+  };
+}
+
 export async function getCompanies(): Promise<Company[]> {
   try {
+    console.log('=== BUSCANDO EMPRESAS ===');
+    
     const { data: companies, error } = await supabase
       .from('companies')
       .select('*')
-      .order('name')
-      .returns<Company[]>();
+      .order('name');
 
     if (error) {
-      console.error('Erro ao buscar empresas:', error);
-      console.log('Usando dados locais e mock para empresas');
+      console.error('=== ERRO AO BUSCAR EMPRESAS NO SUPABASE ===');
+      console.error('Erro:', error);
+      console.log('=== USANDO DADOS LOCAIS E MOCK ===');
       
       // Combinar dados mock com dados locais
       const mockCompanies = getMockCompanies();
       const localCompanies = getLocalCompanies();
+      
+      console.log('Empresas mock:', mockCompanies.length);
+      console.log('Empresas locais:', localCompanies.length);
       
       // Evitar duplicatas baseado no ID
       const allCompanies = [...mockCompanies];
@@ -82,17 +103,31 @@ export async function getCompanies(): Promise<Company[]> {
         }
       });
       
+      console.log('Total de empresas combinadas:', allCompanies.length);
+      console.log('Empresas finais:', allCompanies);
+      
       return allCompanies;
     }
 
-    return companies;
+    console.log('=== EMPRESAS DO SUPABASE ===');
+    console.log('Empresas encontradas:', companies.length);
+    
+    // Converter dados do DB para o formato da aplicação
+    const formattedCompanies = companies.map(dbToCompany);
+    console.log('Empresas formatadas:', formattedCompanies);
+    
+    return formattedCompanies;
   } catch (error) {
-    console.error('Erro de conexão ao buscar empresas:', error);
-    console.log('Usando dados locais e mock para empresas');
+    console.error('=== ERRO DE CONEXÃO AO BUSCAR EMPRESAS ===');
+    console.error('Erro:', error);
+    console.log('=== USANDO DADOS LOCAIS E MOCK (FALLBACK) ===');
     
     // Combinar dados mock com dados locais
     const mockCompanies = getMockCompanies();
     const localCompanies = getLocalCompanies();
+    
+    console.log('Empresas mock (fallback):', mockCompanies.length);
+    console.log('Empresas locais (fallback):', localCompanies.length);
     
     // Evitar duplicatas baseado no ID
     const allCompanies = [...mockCompanies];
@@ -101,6 +136,9 @@ export async function getCompanies(): Promise<Company[]> {
         allCompanies.push(localCompany);
       }
     });
+    
+    console.log('Total de empresas combinadas (fallback):', allCompanies.length);
+    console.log('Empresas finais (fallback):', allCompanies);
     
     return allCompanies;
   }
@@ -111,7 +149,7 @@ export async function getCompany(id: string): Promise<Company | null> {
     .from('companies')
     .select('*')
     .eq('id', id)
-    .single<Company>();
+    .single();
 
   if (error) {
     console.error('Erro ao buscar empresa:', error);
@@ -122,68 +160,124 @@ export async function getCompany(id: string): Promise<Company | null> {
     return null;
   }
 
-  return company;
+  return dbToCompany(company);
 }
 
 export async function createCompany(company: Omit<Company, 'id'>): Promise<Company> {
   try {
-    const { data, error } = await supabase
-      .from('companies')
-      .insert([company as any])
-      .select()
-      .single<Company>();
-
-    if (error) {
-      console.error('Erro ao criar empresa no Supabase:', error);
-      console.log('Salvando empresa localmente');
-      
-      // Criar empresa localmente
-      const newCompany: Company = {
-        ...company,
-        id: Date.now().toString() // ID único baseado em timestamp
-      };
-      
-      // Obter empresas existentes do localStorage
-      const existingCompanies = getLocalCompanies();
-      
-      // Adicionar nova empresa
-      const updatedCompanies = [...existingCompanies, newCompany];
-      
-      // Salvar no localStorage
-      saveLocalCompanies(updatedCompanies);
-      
-      return newCompany;
+    console.log('=== INICIANDO CRIAÇÃO DE EMPRESA ===');
+    console.log('Dados recebidos:', company);
+    
+    // Validar e limpar dados obrigatórios
+    const name = company.name?.trim();
+    const cnpj = company.cnpj?.trim();
+    const taxRegime = company.taxRegime?.trim();
+    const status = company.status?.trim();
+    const address = company.address?.trim() || null;
+    
+    if (!name || !cnpj || !taxRegime || !status) {
+      console.error('Campos obrigatórios faltando:', { name, cnpj, taxRegime, status });
+      throw new Error('Campos obrigatórios não preenchidos');
     }
 
-    return data;
-  } catch (error) {
-    console.error('Erro de conexão ao criar empresa:', error);
-    console.log('Salvando empresa localmente');
+    // Validar regime tributário
+    const validTaxRegimes = ['Simples Nacional', 'Lucro Presumido', 'Lucro Real'];
+    if (!validTaxRegimes.includes(taxRegime)) {
+      console.error('Regime tributário inválido:', taxRegime);
+      throw new Error(`Regime tributário inválido. Deve ser um dos: ${validTaxRegimes.join(', ')}`);
+    }
+
+    // Validar status
+    const validStatuses = ['Ativa', 'Inativa'];
+    if (!validStatuses.includes(status)) {
+      console.error('Status inválido:', status);
+      throw new Error(`Status inválido. Deve ser um dos: ${validStatuses.join(', ')}`);
+    }
     
-    // Criar empresa localmente
-    const newCompany: Company = {
-      ...company,
-      id: Date.now().toString() // ID único baseado em timestamp
+    // Mapear os dados para o formato do banco com validação extra
+    // IMPORTANTE: Enviando para AMBAS as colunas para garantir compatibilidade
+    const companyForDB: any = {
+      name: name,
+      cnpj: cnpj,
+      tax_regime: taxRegime, // Coluna com underscore (parece ser a principal)
+      taxregime: taxRegime,  // Coluna sem underscore (backup)
+      status: status,
+      address: address,
     };
     
-    // Obter empresas existentes do localStorage
-    const existingCompanies = getLocalCompanies();
+    console.log('Dados mapeados para o banco:', companyForDB);
+    console.log('Validação tax_regime:', {
+      original: company.taxRegime,
+      cleaned: taxRegime,
+      tax_regime: companyForDB.tax_regime,
+      taxregime: companyForDB.taxregime,
+      isNull: companyForDB.tax_regime === null,
+      isUndefined: companyForDB.tax_regime === undefined
+    });
     
-    // Adicionar nova empresa
-    const updatedCompanies = [...existingCompanies, newCompany];
+    console.log('Enviando para Supabase...');
     
-    // Salvar no localStorage
-    saveLocalCompanies(updatedCompanies);
+    const { data, error } = await supabase
+      .from('companies')
+      .insert([companyForDB])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('=== ERRO NO SUPABASE ===');
+      console.error('Erro completo:', error);
+      console.error('Mensagem:', error.message);
+      console.error('Código:', error.code);
+      console.error('Detalhes:', error.details);
+      console.error('Hint:', error.hint);
+      console.error('Dados enviados:', companyForDB);
+      
+      // Verificar se é erro de constraint NOT NULL
+      if (error.message.includes('null value in column')) {
+        const match = error.message.match(/null value in column "(\w+)"/);
+        const columnName = match ? match[1] : 'desconhecida';
+        throw new Error(`O campo '${columnName}' é obrigatório e não pode estar vazio.`);
+      }
+      
+      throw new Error(`Erro ao criar empresa: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error('Nenhum dado retornado após criar empresa');
+    }
+
+    console.log('=== EMPRESA CRIADA COM SUCESSO ===');
+    console.log('Dados retornados:', data);
+    
+    // Converter dados do DB para o formato da aplicação
+    const newCompany = dbToCompany(data);
+    console.log('Dados formatados:', newCompany);
     
     return newCompany;
+  } catch (error) {
+    console.error('=== ERRO AO CRIAR EMPRESA ===');
+    console.error('Erro:', error);
+    throw error;
   }
 }
 
 export async function updateCompany(id: string, company: Partial<Company>): Promise<Company> {
   try {
+    // Mapear os dados para o formato do banco
+    const companyForDB: any = {
+      ...(company.name && { name: company.name }),
+      ...(company.cnpj && { cnpj: company.cnpj }),
+      ...(company.taxRegime && { 
+        tax_regime: company.taxRegime,  // Coluna principal
+        taxregime: company.taxRegime    // Coluna backup
+      }),
+      ...(company.status && { status: company.status }),
+      ...(company.address !== undefined && { address: company.address }),
+    };
+
     const { data, error } = await supabase
       .from('companies')
-      .update(company as any)
+      .update(companyForDB)
       .eq('id', id)
       .select()
       .single<Company>();

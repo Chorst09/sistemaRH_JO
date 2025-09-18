@@ -122,11 +122,21 @@ export default function NewEmployeePage() {
       } else {
         throw new Error('Erro ao criar funcionário');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao criar funcionário:', error);
+      
+      // Mostrar mensagem específica baseada no erro
+      let errorMessage = "Ocorreu um erro ao salvar o funcionário. Tente novamente.";
+      
+      if (error.message.includes('email já está sendo usado')) {
+        errorMessage = error.message;
+      } else if (error.message.includes('duplicate key')) {
+        errorMessage = "Este email já está sendo usado por outro funcionário. Use um email diferente.";
+      }
+      
       toast({
         title: "Erro ao adicionar funcionário",
-        description: "Ocorreu um erro ao salvar o funcionário. Tente novamente.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -245,6 +255,7 @@ export default function NewEmployeePage() {
                             {allBenefits.map(benefit => {
                                 const selectedBenefit = selectedBenefits.find(b => b.id === benefit.id);
                                 const isSelected = !!selectedBenefit;
+                                
                                 return (
                                     <div key={benefit.id} className="space-y-2">
                                         <div className="flex items-start space-x-3">
@@ -265,7 +276,7 @@ export default function NewEmployeePage() {
                                                     type="number"
                                                     placeholder="Valor (R$)"
                                                     className="h-8"
-                                                    value={selectedBenefit.value || ''}
+                                                    value={selectedBenefit?.value || ''}
                                                     onChange={(e) => handleBenefitValueChange(benefit.id, e.target.value)}
                                                 />
                                             </div>

@@ -92,9 +92,11 @@ export default function AbsenceChart() {
             innerRadius={60}
             paddingAngle={5}
           >
-            {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={chartConfig[entry.name as keyof typeof chartConfig].color} />
-            ))}
+            {chartData.map((entry, index) => {
+              const config = chartConfig[entry.name as keyof typeof chartConfig];
+              const color = (config && 'color' in config) ? config.color : 'hsl(var(--chart-1))';
+              return <Cell key={`cell-${index}`} fill={color} />;
+            })}
           </Pie>
         </PieChart>
       </ResponsiveContainer>

@@ -123,6 +123,38 @@ export interface Database {
           updated_at?: string
         }
       }
+      companies: {
+        Row: {
+          id: string
+          name: string
+          cnpj: string
+          tax_regime: string
+          status: string
+          address: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          cnpj: string
+          tax_regime: string
+          status?: string
+          address?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          cnpj?: string
+          tax_regime?: string
+          status?: string
+          address?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

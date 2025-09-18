@@ -106,15 +106,20 @@ export default function NewCompanyPage() {
       };
 
       // Criar empresa no banco de dados
-      await createCompany(companyData);
+      console.log('=== INICIANDO CRIAÇÃO DE EMPRESA NA PÁGINA ===');
+      const newCompany = await createCompany(companyData);
+      console.log('=== EMPRESA CRIADA NA PÁGINA ===', newCompany);
 
       toast({
         title: "Empresa criada com sucesso!",
         description: "A nova empresa foi salva no sistema.",
       });
 
-      // Redirecionar para a lista de empresas
-      router.push('/companies');
+      // Aguardar um pouco antes de redirecionar para garantir que os dados foram salvos
+      setTimeout(() => {
+        console.log('=== REDIRECIONANDO PARA LISTA DE EMPRESAS ===');
+        router.push('/companies');
+      }, 500);
 
     } catch (error) {
       console.error('Erro ao criar empresa:', error);
@@ -205,24 +210,23 @@ export default function NewCompanyPage() {
                         </SelectContent>
                     </Select>
                 </div>
-                <div className="flex justify-end gap-2">
-                    <Button variant="outline" asChild>
-                        <Link href="/companies">Cancelar</Link>
-                    </Button>
-                    <Button type="submit" disabled={isFetchingCnpj || isSubmitting}>
-                        {isSubmitting ? (
-                          <>
+                <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isSubmitting}
+                >
+                    {isSubmitting ? (
+                        <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             Salvando...
-                          </>
-                        ) : (
-                          <>
+                        </>
+                    ) : (
+                        <>
                             <Save className="mr-2 h-4 w-4" />
                             Salvar Empresa
-                          </>
-                        )}
-                    </Button>
-                </div>
+                        </>
+                    )}
+                </Button>
             </form>
         </CardContent>
       </Card>

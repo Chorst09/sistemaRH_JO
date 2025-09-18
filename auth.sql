@@ -1,41 +1,22 @@
--- Habilitar a extensão de autenticação do Supabase
-create extension if not exists "uuid-ossp";
+-- Habilita as extensões necessárias (se ainda não estiverem habilitadas)
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- Criar um usuário inicial para teste
-INSERT INTO auth.users (
-  instance_id,
-  id,
-  aud,
-  role,
-  email,
-  encrypted_password,
-  email_confirmed_at,
-  recovery_sent_at,
-  last_sign_in_at,
-  raw_app_meta_data,
-  raw_user_meta_data,
-  created_at,
-  updated_at,
-  confirmation_token,
-  email_change,
-  email_change_token_new,
-  recovery_token
-) VALUES (
-  '00000000-0000-0000-0000-000000000000',
-  uuid_generate_v4(),
-  'authenticated',
-  'authenticated',
-  'sofia.ribeiro@hrvision.com',
-  crypt('senha123', gen_salt('bf')),
-  current_timestamp,
-  current_timestamp,
-  current_timestamp,
-  '{"provider": "email", "providers": ["email"]}',
-  '{}',
-  current_timestamp,
-  current_timestamp,
-  '',
-  '',
-  '',
-  ''
-);
+-- Garante que o usuário autenticado tem acesso ao schema public
+GRANT USAGE ON SCHEMA public TO authenticated;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO authenticated;
+
+-- Configura permissões padrão para novos objetos
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+GRANT ALL ON TABLES TO authenticated;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+GRANT ALL ON SEQUENCES TO authenticated;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+GRANT ALL ON FUNCTIONS TO authenticated;
+
+-- Notifica o PostgREST para recarregar o schema
+NOTIFY pgrst, 'reload schema';

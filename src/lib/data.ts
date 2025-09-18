@@ -153,12 +153,30 @@ export async function getEmployee(id: string) {
   return mappedEmployee;
 }
 
-export async function createEmployee(employeeData: any, benefits: any[]) {
+export async function createEmployee(employeeData: any, benefits?: any[]) {
   try {
     console.log('Dados recebidos para criação:', employeeData);
     
+    // Verificar se o email já existe
+    const { data: existingEmployee, error: checkError } = await supabase
+      .from('employees')
+      .select('id, email')
+      .eq('email', employeeData.email)
+      .single();
+    
+    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = não encontrado
+      console.error('Erro ao verificar email:', checkError);
+    }
+    
+    if (existingEmployee) {
+      throw new Error('Este email já está sendo usado por outro funcionário. Por favor, use um email diferente.');
+    }
+    
     // Separar os benefícios dos dados do funcionário
-    const { benefits: _, ...employeeWithoutBenefits } = employeeData;
+    const { benefits: benefitsFromData, ...employeeWithoutBenefits } = employeeData;
+    
+    // Usar benefícios do parâmetro ou dos dados
+    const benefitsToProcess = benefits || benefitsFromData || [];
     
     // Validar e formatar a data de contratação
     let formattedHireDate: string;
@@ -200,6 +218,17 @@ export async function createEmployee(employeeData: any, benefits: any[]) {
 
     if (employeeError) {
       console.error('Erro ao inserir funcionário:', employeeError);
+      
+      // Tratar erro de email duplicado
+      if (employeeError.code === '23505' && employeeError.message.includes('employees_email_key')) {
+        throw new Error('Este email já está sendo usado por outro funcionário. Por favor, use um email diferente.');
+      }
+      
+      // Outros erros de constraint
+      if (employeeError.code === '23505') {
+        throw new Error('Já existe um funcionário com estes dados. Verifique se não há duplicação.');
+      }
+      
       throw new Error(`Erro ao criar funcionário: ${employeeError.message}`);
     }
 
@@ -210,12 +239,14 @@ export async function createEmployee(employeeData: any, benefits: any[]) {
     console.log('Funcionário criado com sucesso:', employee);
 
     // Inserir os benefícios se existirem
-    if (benefits && benefits.length > 0) {
-      const benefitsForDB: BenefitInsert[] = benefits.map((benefit: any) => ({
+    if (benefitsToProcess && benefitsToProcess.length > 0) {
+      const benefitsForDB: BenefitInsert[] = benefitsToProcess.map((benefit: any) => ({
         employee_id: employee.id,
         benefit_type: benefit.type || benefit.id,
         value: benefit.value ? parseFloat(benefit.value) : null
       }));
+
+      console.log('Inserindo benefícios:', benefitsForDB);
 
       const { error: benefitsError } = await supabase
         .from('benefits')
@@ -223,7 +254,8 @@ export async function createEmployee(employeeData: any, benefits: any[]) {
 
       if (benefitsError) {
         console.error('Erro ao inserir benefícios:', benefitsError);
-        // Não falhar se os benefícios não foram inseridos
+        // Não falhar se os benefícios não foram inseridos, mas avisar
+        console.warn('Funcionário criado, mas benefícios não foram salvos');
       }
     }
 

@@ -26,7 +26,8 @@ import {
 } from '@/components/ui/select';
 import { getEmployees, getPayslips } from '@/lib/data';
 import { getMonthName } from '@/lib/utils';
-import { Employee, Payslip } from '@/types';
+import { Employee } from '@/types/index';
+import { Payslip } from '@/types';
 import PayslipDetailDialog from '@/components/payslip/payslip-detail-dialog';
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
@@ -54,6 +55,8 @@ export default function AdminPayslipPage() {
       } catch (err) {
         console.error('Erro ao carregar funcionários:', err);
         setError(err instanceof Error ? err.message : 'Erro ao carregar funcionários');
+      } finally {
+        setIsLoading(false);
       }
     }
 
