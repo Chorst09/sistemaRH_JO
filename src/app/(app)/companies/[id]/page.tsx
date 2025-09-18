@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import {
@@ -10,13 +8,25 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { companies } from '@/lib/company-data';
+import { getCompany } from '@/lib/company-data';
 import { ArrowLeft, Building, FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
-export default function CompanyDetailPage({ params }: { params: { id: string } }) {
-  const company = companies.find((c) => c.id === params.id);
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function CompanyDetailPage({ params }: PageProps) {
+  const { id } = await params;
+  
+  let company;
+  try {
+    company = await getCompany(id);
+  } catch (error) {
+    console.error('Erro ao buscar empresa:', error);
+    notFound();
+  }
 
   if (!company) {
     notFound();

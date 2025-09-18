@@ -34,17 +34,28 @@ import ManageBenefitsDialog from '@/components/benefits/manage-benefits-dialog';
 import { Employee, EmployeeBenefit } from '@/types';
 import { Benefit } from '@/lib/benefits-data';
 
-export default function EmployeeProfilePage({
-  params,
-}: {
-  params: { id: string };
-}) {
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function EmployeeProfilePage({ params }: PageProps) {
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [allBenefits, setAllBenefits] = useState<Benefit[]>([]);
+  const [employeeId, setEmployeeId] = useState<string>('');
 
   useEffect(() => {
+    async function loadParams() {
+      const { id } = await params;
+      setEmployeeId(id);
+    }
+    loadParams();
+  }, [params]);
+
+  useEffect(() => {
+    if (!employeeId) return;
+    
     async function loadEmployee() {
-      const data = await getEmployee(params.id);
+      const data = await getEmployee(employeeId);
       if (data) {
         setEmployee(data);
       }
