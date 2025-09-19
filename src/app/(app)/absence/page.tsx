@@ -79,7 +79,7 @@ export default function AbsencePage() {
 
           // Buscar nomes dos funcionários para as solicitações da equipe
           if (typedTeamRequests && typedTeamRequests.length > 0) {
-            const employeeIds = [...new Set(typedTeamRequests.map(r => r.employee_id))];
+            const employeeIds = [...new Set((typedTeamRequests as any[]).map(r => r.employee_id))];
             const { data: employees, error: employeesError } = await supabase
               .from('employees')
               .select('id, name')
