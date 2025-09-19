@@ -58,11 +58,11 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session?.user?.id);
-      
+
       // Sempre define o usuário baseado na sessão do evento
       setUser(session?.user ?? null);
       setLoading(false);
-      
+
       // Refresh apenas em eventos importantes
       if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
         router.refresh();
