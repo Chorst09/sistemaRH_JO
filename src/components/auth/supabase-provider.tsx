@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase-client';
+import { runStartupValidation } from '@/lib/startup-validation';
 import type { User } from '@supabase/supabase-js';
 
 type SupabaseContextType = {
@@ -27,6 +28,18 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  
+  // Run environment validation on client-side startup
+  useEffect(() => {
+    try {
+      runStartupValidation();
+    } catch (error) {
+      console.error('Environment validation failed:', error);
+      // In development, we might want to show an error boundary
+      // For now, we'll just log the error and continue
+    }
+  }, []);
+  
   const supabase = createClient();
 
   useEffect(() => {

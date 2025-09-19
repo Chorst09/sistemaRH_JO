@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
+import { AuthLoggingDebug } from '@/components/debug/auth-logging-debug';
 
 export default function DebugPage() {
   const [result, setResult] = useState<any>(null);
@@ -96,6 +97,9 @@ export default function DebugPage() {
           </pre>
         </div>
       )}
+
+      {/* Authentication Logging Debug Panel */}
+      <AuthLoggingDebug />
     </div>
   );
 }

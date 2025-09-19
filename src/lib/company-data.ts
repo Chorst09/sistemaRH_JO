@@ -1,5 +1,5 @@
 import { Company } from '@/types/index';
-import { supabase } from './supabase';
+import { createClient } from './supabase-client';
 import { Database } from '@/types/supabase';
 
 type CompanyInsert = Database['public']['Tables']['companies']['Insert'];
@@ -79,7 +79,8 @@ export async function getCompanies(): Promise<Company[]> {
   try {
     console.log('=== BUSCANDO EMPRESAS ===');
     
-    const { data: companies, error } = await (supabase as any)
+    const supabase = createClient();
+    const { data: companies, error } = await supabase
       .from('companies')
       .select('*')
       .order('name');
@@ -146,7 +147,8 @@ export async function getCompanies(): Promise<Company[]> {
 }
 
 export async function getCompany(id: string): Promise<Company | null> {
-  const { data: company, error } = await (supabase as any)
+  const supabase = createClient();
+  const { data: company, error } = await supabase
     .from('companies')
     .select('*')
     .eq('id', id)
@@ -168,6 +170,34 @@ export async function createCompany(company: Omit<Company, 'id'>): Promise<Compa
   try {
     console.log('=== INICIANDO CRIAÇÃO DE EMPRESA ===');
     console.log('Dados recebidos:', company);
+    
+    // Usar o mesmo cliente que o useAuth
+    const supabase = createClient();
+    
+    // Verificar se o usuário está autenticado
+    const { data: { session }, error: authError } = await supabase.auth.getSession();
+    
+    if (authError) {
+      console.error('Erro ao verificar autenticação:', authError);
+      throw new Error('Erro ao verificar autenticação. Faça login novamente.');
+    }
+    
+    console.log('Status da sessão:', {
+      hasSession: !!session,
+      hasUser: !!session?.user,
+      userEmail: session?.user?.email,
+      sessionId: session?.access_token?.substring(0, 20) + '...'
+    });
+    
+    if (!session || !session.user) {
+      console.error('Usuário não autenticado');
+      console.error('Detalhes da sessão:', session);
+      throw new Error('Você precisa estar logado para criar uma empresa. Faça login e tente novamente.');
+    }
+    
+    console.log('Usuário autenticado:', session.user.email);
+    console.log('ID do usuário:', session.user.id);
+    console.log('Role do usuário:', session.user.role || 'authenticated');
     
     // Validar e limpar dados obrigatórios
     const name = company.name?.trim();
@@ -218,7 +248,7 @@ export async function createCompany(company: Omit<Company, 'id'>): Promise<Compa
     
     console.log('Enviando para Supabase...');
     
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('companies')
       .insert([companyForDB])
       .select()
@@ -233,11 +263,21 @@ export async function createCompany(company: Omit<Company, 'id'>): Promise<Compa
       console.error('Hint:', error.hint);
       console.error('Dados enviados:', companyForDB);
       
+      // Verificar se é erro de RLS (Row Level Security)
+      if (error.message.includes('row-level security policy')) {
+        throw new Error('Você não tem permissão para criar empresas. Entre em contato com o administrador do sistema.');
+      }
+      
       // Verificar se é erro de constraint NOT NULL
       if (error.message.includes('null value in column')) {
         const match = error.message.match(/null value in column "(\w+)"/);
         const columnName = match ? match[1] : 'desconhecida';
         throw new Error(`O campo '${columnName}' é obrigatório e não pode estar vazio.`);
+      }
+      
+      // Verificar se é erro de autenticação
+      if (error.code === '42501' || error.message.includes('permission denied')) {
+        throw new Error('Você não tem permissão para criar empresas. Verifique se está logado corretamente.');
       }
       
       throw new Error(`Erro ao criar empresa: ${error.message}`);
@@ -264,6 +304,8 @@ export async function createCompany(company: Omit<Company, 'id'>): Promise<Compa
 
 export async function updateCompany(id: string, company: Partial<Company>): Promise<Company> {
   try {
+    const supabase = createClient();
+    
     // Mapear os dados para o formato do banco
     const companyForDB: any = {
       ...(company.name && { name: company.name }),
@@ -276,7 +318,7 @@ export async function updateCompany(id: string, company: Partial<Company>): Prom
       ...(company.address !== undefined && { address: company.address }),
     };
 
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('companies')
       .update(companyForDB)
       .eq('id', id)
@@ -296,7 +338,8 @@ export async function updateCompany(id: string, company: Partial<Company>): Prom
 }
 
 export async function deleteCompany(id: string): Promise<boolean> {
-  const { error } = await (supabase as any)
+  const supabase = createClient();
+  const { error } = await supabase
     .from('companies')
     .delete()
     .eq('id', id);

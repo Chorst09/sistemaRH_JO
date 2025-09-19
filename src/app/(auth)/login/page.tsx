@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase-client';
+import { handleAuthError, validateAuthInput } from '@/lib/auth-error-handler';
+import { logAuthAttempt, logSessionCreated, logSessionValidation } from '@/lib/auth-session-logger';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,38 +26,109 @@ export default function LoginPage() {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (session && !error) {
+          // Log successful session validation
+          await logSessionValidation(true, session.user?.id, session.access_token.substring(0, 8));
           router.push('/companies');
+        } else if (error) {
+          // Log session validation failure
+          await logSessionValidation(false, undefined, undefined, error, {
+            userAgent: navigator.userAgent,
+            location: window.location.href
+          });
+          
+          // Log session check errors but don't show to user unless critical
+          const structuredError = handleAuthError(error, {
+            context: 'session_check',
+            url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+          });
+          
+          // Only show error to user if it's a configuration issue
+          if (structuredError.type === 'config') {
+            toast({
+              title: "Erro de configuração",
+              description: structuredError.userMessage,
+              variant: "destructive",
+            });
+          }
         }
       } catch (error) {
-        console.error('Erro ao verificar sessão:', error);
+        const structuredError = handleAuthError(error, {
+          context: 'session_check_exception',
+          url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+        });
+        
+        // Only show critical errors to user
+        if (structuredError.type === 'config') {
+          toast({
+            title: "Erro de configuração",
+            description: structuredError.userMessage,
+            variant: "destructive",
+          });
+        }
       }
     };
     checkSession();
-  }, [router, supabase]);
+  }, [router, supabase, toast]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      // Validate input before attempting authentication
+      const validationError = validateAuthInput(email, password);
+      if (validationError) {
+        toast({
+          title: "Dados inválidos",
+          description: validationError.userMessage,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        console.error('🚨 Erro de autenticação detalhado:', {
-          message: error.message,
-          status: error.status,
-          statusCode: (error as any)?.status,
-          details: error,
-          url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-          timestamp: new Date().toISOString()
+        // Log authentication attempt failure
+        await logAuthAttempt(email, false, error, {
+          userAgent: navigator.userAgent,
+          location: window.location.href
         });
-        throw error;
+        
+        // Use enhanced error handling
+        const structuredError = handleAuthError(error, {
+          email: email, // Don't log password for security
+          url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+          userAgent: navigator.userAgent,
+        });
+        
+        toast({
+          title: "Erro ao fazer login",
+          description: structuredError.userMessage,
+          variant: "destructive",
+        });
+        
+        setIsLoading(false);
+        return;
       }
 
-      if (data.user) {
+      if (data.user && data.session) {
+        // Log successful authentication attempt
+        await logAuthAttempt(email, true, undefined, {
+          userAgent: navigator.userAgent,
+          location: window.location.href
+        });
+        
+        // Log session creation
+        await logSessionCreated(data.user, data.session, {
+          userAgent: navigator.userAgent,
+          location: window.location.href
+        });
+        
         toast({
           title: "Login realizado com sucesso!",
           description: "Redirecionando para o dashboard...",
@@ -67,11 +140,20 @@ export default function LoginPage() {
         }, 100);
       }
     } catch (error: any) {
+      // Handle unexpected errors
+      const structuredError = handleAuthError(error, {
+        email: email,
+        url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+        userAgent: navigator.userAgent,
+        context: 'login_form_submission',
+      });
+      
       toast({
-        title: "Erro ao fazer login",
-        description: error.message || "Verifique suas credenciais e tente novamente.",
+        title: "Erro inesperado",
+        description: structuredError.userMessage,
         variant: "destructive",
       });
+      
       setIsLoading(false);
     }
   };

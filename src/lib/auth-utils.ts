@@ -1,4 +1,5 @@
 import { createClient } from './supabase-client';
+import { handleAuthError } from './auth-error-handler';
 
 export async function getServerSession() {
   const supabase = createClient();
@@ -7,13 +8,13 @@ export async function getServerSession() {
     const { data: { session }, error } = await supabase.auth.getSession();
     
     if (error) {
-      console.error('Erro ao obter sessão do servidor:', error);
+      handleAuthError(error, { context: 'get_server_session' });
       return null;
     }
     
     return session;
   } catch (error) {
-    console.error('Erro na verificação de sessão do servidor:', error);
+    handleAuthError(error, { context: 'get_server_session_exception' });
     return null;
   }
 }
@@ -25,13 +26,13 @@ export async function refreshSession() {
     const { data: { session }, error } = await supabase.auth.refreshSession();
     
     if (error) {
-      console.error('Erro ao atualizar sessão:', error);
+      handleAuthError(error, { context: 'refresh_session' });
       return null;
     }
     
     return session;
   } catch (error) {
-    console.error('Erro na atualização de sessão:', error);
+    handleAuthError(error, { context: 'refresh_session_exception' });
     return null;
   }
 }
@@ -43,13 +44,13 @@ export async function signOut() {
     const { error } = await supabase.auth.signOut();
     
     if (error) {
-      console.error('Erro ao fazer logout:', error);
+      handleAuthError(error, { context: 'sign_out' });
       return false;
     }
     
     return true;
   } catch (error) {
-    console.error('Erro no processo de logout:', error);
+    handleAuthError(error, { context: 'sign_out_exception' });
     return false;
   }
 }

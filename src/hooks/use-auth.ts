@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase-client';
+import { handleAuthError } from '@/lib/auth-error-handler';
+import { logSessionValidation, logSessionDestroyed, logSessionRefresh } from '@/lib/auth-session-logger';
 import { User } from '@supabase/supabase-js';
 
 export function useAuth() {
@@ -15,13 +17,28 @@ export function useAuth() {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) {
-          console.error('Erro ao obter sessão:', error);
+          await logSessionValidation(false, undefined, undefined, error, {
+            userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : undefined
+          });
+          handleAuthError(error, { context: 'use_auth_get_session' });
           setUser(null);
         } else {
+          await logSessionValidation(
+            !!session, 
+            session?.user?.id, 
+            session?.access_token?.substring(0, 8),
+            undefined,
+            {
+              userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : undefined
+            }
+          );
           setUser(session?.user ?? null);
         }
       } catch (error) {
-        console.error('Erro na verificação de sessão:', error);
+        await logSessionValidation(false, undefined, undefined, error, {
+          userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : undefined
+        });
+        handleAuthError(error, { context: 'use_auth_get_session_exception' });
         setUser(null);
       } finally {
         setLoading(false);
@@ -35,6 +52,30 @@ export function useAuth() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event);
+      
+      // Log session state changes
+      switch (event) {
+        case 'SIGNED_IN':
+          if (session?.user) {
+            await logSessionValidation(true, session.user.id, session.access_token?.substring(0, 8));
+          }
+          break;
+        case 'SIGNED_OUT':
+          await logSessionDestroyed(
+            session?.user?.id,
+            session?.access_token?.substring(0, 8),
+            'user_logout'
+          );
+          break;
+        case 'TOKEN_REFRESHED':
+          await logSessionRefresh(
+            !!session,
+            session?.user?.id,
+            session?.access_token?.substring(0, 8)
+          );
+          break;
+      }
+      
       setUser(session?.user ?? null);
       setLoading(false);
       
@@ -48,18 +89,43 @@ export function useAuth() {
   }, [router, supabase]);
 
   const signOut = async () => {
+    const currentUser = user;
     try {
       setLoading(true);
       const { error } = await supabase.auth.signOut();
       if (error) {
-        console.error('Erro ao fazer logout:', error);
+        await logSessionDestroyed(
+          currentUser?.id,
+          undefined,
+          'error',
+          {
+            userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : undefined
+          }
+        );
+        handleAuthError(error, { context: 'use_auth_sign_out' });
       } else {
+        await logSessionDestroyed(
+          currentUser?.id,
+          undefined,
+          'user_logout',
+          {
+            userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : undefined
+          }
+        );
         setUser(null);
         router.push('/login');
         router.refresh();
       }
     } catch (error) {
-      console.error('Erro ao fazer logout:', error);
+      await logSessionDestroyed(
+        currentUser?.id,
+        undefined,
+        'error',
+        {
+          userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : undefined
+        }
+      );
+      handleAuthError(error, { context: 'use_auth_sign_out_exception' });
     } finally {
       setLoading(false);
     }

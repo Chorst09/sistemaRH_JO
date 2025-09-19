@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Card,
@@ -20,13 +20,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Building, ArrowLeft, Save, Loader2 } from 'lucide-react';
+import { Building, ArrowLeft, Save, Loader2, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createCompany } from '@/lib/company-data';
+import { useAuth } from '@/hooks/use-auth';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AuthStatusDebug } from '@/components/debug/auth-status-debug';
 
 export default function NewCompanyPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const { user, loading } = useAuth();
   const [isFetchingCnpj, setIsFetchingCnpj] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -35,6 +39,18 @@ export default function NewCompanyPage() {
   const [taxRegime, setTaxRegime] = useState('');
   const [status, setStatus] = useState('');
   const [address, setAddress] = useState('');
+
+  // Verificar autenticação
+  useEffect(() => {
+    if (!loading && !user) {
+      toast({
+        title: "Acesso negado",
+        description: "Você precisa estar logado para criar empresas.",
+        variant: "destructive",
+      });
+      router.push('/login');
+    }
+  }, [user, loading, router, toast]);
 
 
   const handleCnpjBlur = async () => {
@@ -133,6 +149,20 @@ export default function NewCompanyPage() {
     }
   }
 
+  // Mostrar loading enquanto verifica autenticação
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Não mostrar nada se não estiver autenticado (será redirecionado)
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="space-y-6">
         <div className="flex items-center gap-4">
@@ -147,6 +177,17 @@ export default function NewCompanyPage() {
                 <p className="text-muted-foreground">Preencha os detalhes da nova empresa.</p>
             </div>
         </div>
+
+        {/* Mostrar informação do usuário logado */}
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Logado como: <strong>{user.email}</strong>
+          </AlertDescription>
+        </Alert>
+
+        {/* Debug de autenticação */}
+        <AuthStatusDebug />
       <Card>
         <CardHeader>
             <CardTitle className="flex items-center gap-2"><Building /> Informações da Empresa</CardTitle>
