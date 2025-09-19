@@ -1,10 +1,4 @@
 {
   "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "rewrites": [
-    {
-      "source": "/empresas/:path*",
-      "destination": "/companies/:path*"
-    }
-  ]
+  "buildCommand": "npm run build"
 }

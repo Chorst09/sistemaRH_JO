@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
-import { AuthLoggingDebug } from '@/components/debug';
+// Remove debug component completely for production build
 
 export default function DebugPage() {
   const [result, setResult] = useState<any>(null);
@@ -98,8 +98,8 @@ export default function DebugPage() {
         </div>
       )}
 
-      {/* Authentication Logging Debug Panel */}
-      <AuthLoggingDebug />
+      {/* Authentication Logging Debug Panel - Removido para produção */}
+      {/* <AuthLoggingDebug /> */}
     </div>
   );
 }

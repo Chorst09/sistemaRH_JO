@@ -25,7 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { createCompany } from '@/lib/company-data';
 import { useAuth } from '@/hooks/use-auth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AuthStatusDebug } from '@/components/debug';
+// Remove debug component completely for production build
 
 export default function NewCompanyPage() {
   const { toast } = useToast();
@@ -194,8 +194,8 @@ export default function NewCompanyPage() {
           </AlertDescription>
         </Alert>
 
-        {/* Debug de autenticação */}
-        <AuthStatusDebug />
+        {/* Debug de autenticação - Removido para produção */}
+        {/* <AuthStatusDebug /> */}
       <Card>
         <CardHeader>
             <CardTitle className="flex items-center gap-2"><Building /> Informações da Empresa</CardTitle>
