@@ -30,7 +30,7 @@ describe('Authentication Logging Integration', () => {
   describe('Authentication Flow Logging', () => {
     it('should log successful authentication attempt', async () => {
       const email = 'test@example.com';
-      
+
       await logAuthAttempt(email, true, undefined, {
         userAgent: 'test-agent',
         location: 'http://localhost:3000/login'
@@ -47,7 +47,7 @@ describe('Authentication Logging Integration', () => {
     it('should log failed authentication attempt', async () => {
       const email = 'test@example.com';
       const error = { code: 'invalid_credentials', message: 'Invalid login credentials' };
-      
+
       await logAuthAttempt(email, false, error, {
         userAgent: 'test-agent',
         location: 'http://localhost:3000/login'
@@ -80,7 +80,7 @@ describe('Authentication Logging Integration', () => {
 
       const logs = authLogger.getRecentLogs();
       expect(logs.length).toBeGreaterThan(0);
-      
+
       const sessionLog = logs.find(log => log.message.includes('session created'));
       expect(sessionLog).toBeDefined();
       expect(sessionLog?.category).toBe('session');
@@ -90,7 +90,7 @@ describe('Authentication Logging Integration', () => {
     it('should log session validation', async () => {
       const userId = 'user-123';
       const sessionId = 'session-456';
-      
+
       await logSessionValidation(true, userId, sessionId);
 
       const logs = authLogger.getRecentLogs(1);
@@ -106,7 +106,7 @@ describe('Authentication Logging Integration', () => {
   describe('Error Handling Integration', () => {
     it('should integrate with auth error handler', async () => {
       const error = new Error('Supabase configuration error');
-      
+
       const structuredError = handleAuthError(error, {
         context: 'test_integration',
         url: 'https://invalid-url.com'
@@ -115,7 +115,7 @@ describe('Authentication Logging Integration', () => {
       // The handleAuthError function should have logged the error
       const logs = authLogger.getRecentLogs();
       expect(logs.length).toBeGreaterThan(0);
-      
+
       const errorLog = logs.find(log => log.level === 'error');
       expect(errorLog).toBeDefined();
       expect(structuredError.type).toBeDefined();
@@ -124,7 +124,7 @@ describe('Authentication Logging Integration', () => {
 
     it('should handle configuration errors with proper logging', async () => {
       const configError = new Error('Invalid Supabase URL format');
-      
+
       const structuredError = handleAuthError(configError, {
         context: 'config_validation',
         url: 'invalid-url'
@@ -133,7 +133,7 @@ describe('Authentication Logging Integration', () => {
       // The error type depends on the error handler's logic
       expect(structuredError.type).toBeDefined();
       expect(['config', 'auth']).toContain(structuredError.type);
-      
+
       const logs = authLogger.getRecentLogs();
       expect(logs.length).toBeGreaterThan(0);
     });
@@ -176,7 +176,7 @@ describe('Authentication Logging Integration', () => {
 
       const logs = authLogger.getRecentLogs();
       expect(logs.length).toBeGreaterThanOrEqual(3);
-      
+
       // Should have different types of logs
       const categories = logs.map(log => log.category);
       expect(categories).toContain('auth');
@@ -186,7 +186,7 @@ describe('Authentication Logging Integration', () => {
     it('should clear buffer when requested', async () => {
       await logAuthAttempt('test@example.com', true);
       expect(authLogger.getRecentLogs()).toHaveLength(1);
-      
+
       authLogger.clearBuffer();
       expect(authLogger.getRecentLogs()).toHaveLength(0);
     });

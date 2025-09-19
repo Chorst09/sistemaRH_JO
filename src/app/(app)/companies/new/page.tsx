@@ -25,7 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { createCompany } from '@/lib/company-data';
 import { useAuth } from '@/hooks/use-auth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AuthStatusDebug } from '@/components/debug/auth-status-debug';
+import { AuthStatusDebug } from '@/components/debug';
 
 export default function NewCompanyPage() {
   const { toast } = useToast();

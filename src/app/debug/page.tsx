@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase-client';
-import { AuthLoggingDebug } from '@/components/debug/auth-logging-debug';
+import { AuthLoggingDebug } from '@/components/debug';
 
 export default function DebugPage() {
   const [result, setResult] = useState<any>(null);
