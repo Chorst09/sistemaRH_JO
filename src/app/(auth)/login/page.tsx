@@ -9,14 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
-import { LoginDebug } from '@/components/debug/login-debug';
 
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('sofia.ribeiro@hrvision.com');
+  const [password, setPassword] = useState('Senha@123');
   const supabase = createClient();
 
   // Verifica se já existe uma sessão ativa
@@ -45,6 +44,14 @@ export default function LoginPage() {
       });
 
       if (error) {
+        console.error('🚨 Erro de autenticação detalhado:', {
+          message: error.message,
+          status: error.status,
+          statusCode: (error as any)?.status,
+          details: error,
+          url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+          timestamp: new Date().toISOString()
+        });
         throw error;
       }
 
@@ -122,11 +129,6 @@ export default function LoginPage() {
           </form>
         </CardContent>
       </Card>
-      
-      {/* Componente de Debug - Remover em produção */}
-      <div className="mt-8">
-        <LoginDebug />
-      </div>
     </div>
   );
 }
