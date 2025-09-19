@@ -1,9 +1,11 @@
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
   });
 
   const supabase = createServerClient(
@@ -11,43 +13,66 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return request.cookies.getAll();
+        get(name: string) {
+          return request.cookies.get(name)?.value;
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value));
-          supabaseResponse = NextResponse.next({
-            request,
+        set(name: string, value: string, options: CookieOptions) {
+          request.cookies.set({
+            name,
+            value,
+            ...options,
           });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          });
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          });
+        },
+        remove(name: string, options: CookieOptions) {
+          request.cookies.delete({
+            name,
+            ...options,
+          });
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          });
+          response.cookies.delete({
+            name,
+            ...options,
+          });
         },
       },
     }
   );
 
   try {
-    // Apenas obtém a sessão - não chama getUser()
     const { data: { session } } = await supabase.auth.getSession();
     
-    // Redireciona para login se não há sessão e está tentando acessar rotas protegidas
     const isProtectedRoute = request.nextUrl.pathname.startsWith('/companies') || 
                             request.nextUrl.pathname.startsWith('/dashboard');
     
     if (!session && isProtectedRoute) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      const redirectUrl = new URL('/login', request.url);
+      return NextResponse.redirect(redirectUrl);
     }
     
-    // Redireciona para companies se já está logado e tenta acessar login
     if (session && request.nextUrl.pathname === '/login') {
-      return NextResponse.redirect(new URL('/companies', request.url));
+      const redirectUrl = new URL('/companies', request.url);
+      return NextResponse.redirect(redirectUrl);
     }
+
+    return response;
   } catch (error) {
     console.error('Middleware error:', error);
+    return response;
   }
-
-  return supabaseResponse;
 }
 
 export const config = {
@@ -57,7 +82,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - public files (public/*)
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

@@ -78,6 +78,12 @@ const nextConfig: NextConfig = {
         net: false,
         tls: false,
         crypto: false,
+        process: false,
+        path: false,
+        stream: false,
+        util: false,
+        buffer: false,
+        url: false,
       };
     }
 

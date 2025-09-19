@@ -25,5 +25,9 @@ export const supabase = createClient<Database>(
         'X-Client-Info': 'supabase-js-web',
       },
     },
+    realtime: {
+      // Desabilita WebSocket no Edge Runtime
+      eventsPerSecond: 0,
+    },
   }
 );
