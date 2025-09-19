@@ -363,7 +363,7 @@ export async function updateCompany(id: string, company: Partial<Company>): Prom
       throw new Error('Não foi possível atualizar a empresa');
     }
 
-    return data;
+    return dbToCompany(data);
   } catch (error) {
     console.error('Erro de conexão ao atualizar empresa:', error);
     throw new Error('Não foi possível atualizar a empresa');
