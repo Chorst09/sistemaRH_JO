@@ -8,7 +8,7 @@ export type ImagePlaceholder = {
 };
 
 export async function getPlaceholderImages(): Promise<ImagePlaceholder[]> {
-  const { data: images, error } = await supabase
+  const { data: images, error } = await (supabase as any)
     .from('placeholder_images')
     .select('*');
 
@@ -21,7 +21,7 @@ export async function getPlaceholderImages(): Promise<ImagePlaceholder[]> {
 }
 
 export async function getPlaceholderImageById(id: string): Promise<ImagePlaceholder | null> {
-  const { data: image, error } = await supabase
+  const { data: image, error } = await (supabase as any)
     .from('placeholder_images')
     .select('*')
     .eq('id', id)
@@ -36,7 +36,7 @@ export async function getPlaceholderImageById(id: string): Promise<ImagePlacehol
 }
 
 export async function createPlaceholderImage(image: Omit<ImagePlaceholder, 'id'>): Promise<ImagePlaceholder | null> {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('placeholder_images')
     .insert([image])
     .select()
@@ -51,7 +51,7 @@ export async function createPlaceholderImage(image: Omit<ImagePlaceholder, 'id'>
 }
 
 export async function updatePlaceholderImage(id: string, image: Partial<ImagePlaceholder>): Promise<ImagePlaceholder | null> {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('placeholder_images')
     .update(image)
     .eq('id', id)
@@ -67,7 +67,7 @@ export async function updatePlaceholderImage(id: string, image: Partial<ImagePla
 }
 
 export async function deletePlaceholderImage(id: string): Promise<boolean> {
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('placeholder_images')
     .delete()
     .eq('id', id);

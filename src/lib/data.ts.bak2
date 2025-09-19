@@ -294,7 +294,7 @@ export async function getBenefits(employeeId: string) {
   const { data: benefits, error } = await (supabase as any)
     .from('benefits')
     .select('*')
-    .returns()
+    .returns<Benefit[]>()
     .eq('employee_id', employeeId);
 
   if (error) {
@@ -308,7 +308,7 @@ export async function createBenefit(benefit: Omit<Benefit, 'id'>) {
   const { data, error } = await (supabase as any)
     .from('benefits')
     .insert([benefit])
-    .returns()
+    .returns<Benefit>()
     .single();
 
   if (error) {
@@ -323,7 +323,7 @@ export async function updateBenefit(id: string, benefit: Partial<Benefit>) {
     .from('benefits')
     .update(benefit)
     .eq('id', id)
-    .returns()
+    .returns<Benefit>()
     .single();
 
   if (error) {
@@ -350,7 +350,7 @@ export async function getDocuments(employeeId: string) {
   const { data: documents, error } = await (supabase as any)
     .from('documents')
     .select('*')
-    .returns()
+    .returns<Document[]>()
     .eq('employee_id', employeeId);
 
   if (error) {
@@ -364,7 +364,7 @@ export async function createDocument(document: Omit<Document, 'id'>) {
   const { data, error } = await (supabase as any)
     .from('documents')
     .insert([document])
-    .returns()
+    .returns<Document>()
     .single();
 
   if (error) {
@@ -379,7 +379,7 @@ export async function updateDocument(id: string, document: Partial<Document>) {
     .from('documents')
     .update(document)
     .eq('id', id)
-    .returns()
+    .returns<Document>()
     .single();
 
   if (error) {
@@ -406,7 +406,7 @@ export async function getPayslips(employeeId: string) {
   const { data: payslips, error } = await (supabase as any)
     .from('payslips')
     .select('*')
-    .returns()
+    .returns<Payslip[]>()
     .eq('employee_id', employeeId)
     .order('payment_date', { ascending: false });
 
@@ -421,7 +421,7 @@ export async function getPayslip(id: string) {
   const { data: payslip, error } = await (supabase as any)
     .from('payslips')
     .select('*')
-    .returns()
+    .returns<Payslip>()
     .eq('id', id)
     .single();
 
@@ -436,7 +436,7 @@ export async function createPayslip(payslip: Omit<Payslip, 'id'>) {
   const { data, error } = await (supabase as any)
     .from('payslips')
     .insert([payslip])
-    .returns()
+    .returns<Payslip>()
     .single();
 
   if (error) {
@@ -451,7 +451,7 @@ export async function updatePayslip(id: string, payslip: Partial<Payslip>) {
     .from('payslips')
     .update(payslip)
     .eq('id', id)
-    .returns()
+    .returns<Payslip>()
     .single();
 
   if (error) {

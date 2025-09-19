@@ -24,13 +24,13 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 
 type VacationCalculation = {
-    grossVacation: number;
-    oneThird: number;
-    abonoPecuniario: number;
-    totalGross: number;
-    inss: number;
-    irrf: number;
-    totalNet: number;
+  grossVacation: number;
+  oneThird: number;
+  abonoPecuniario: number;
+  totalGross: number;
+  inss: number;
+  irrf: number;
+  totalNet: number;
 }
 
 type RequestVacationDialogProps = {
@@ -90,11 +90,11 @@ export default function RequestVacationDialog({ employee }: RequestVacationDialo
 
   const handleSimulate = () => {
     if (!dateRange.from || !dateRange.to) return;
-    
+
     setIsSimulating(true);
 
     try {
-      const calculation = calculateVacation(employee.salary, vacationDays, sellOneThird);
+      const calculation = calculateVacation((employee as any).salary || 50000, vacationDays, sellOneThird);
       setCalculation(calculation);
     } catch (error) {
       console.error('Erro ao calcular férias:', error);
@@ -114,7 +114,7 @@ export default function RequestVacationDialog({ employee }: RequestVacationDialo
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('vacation_requests')
         .insert({
           employee_id: employee.id,
@@ -205,7 +205,7 @@ export default function RequestVacationDialog({ employee }: RequestVacationDialo
                   <Calendar
                     mode="range"
                     selected={{ from: dateRange.from!, to: dateRange.to }}
-                    onSelect={(range) => setDateRange(range || { from: undefined, to: undefined })}
+                    onSelect={(range) => setDateRange(range ? { from: range.from, to: range.to } : { from: undefined, to: undefined })}
                     numberOfMonths={2}
                     locale={ptBR}
                   />
@@ -213,19 +213,19 @@ export default function RequestVacationDialog({ employee }: RequestVacationDialo
               </Popover>
               {vacationDays > 0 && <p className="text-sm text-muted-foreground mt-2">Total de dias: {vacationDays}</p>}
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <Switch id="sell-one-third" checked={sellOneThird} onCheckedChange={setSellOneThird} />
               <Label htmlFor="sell-one-third">Vender 1/3 das férias (Abono Pecuniário)</Label>
             </div>
-            
+
             <Button onClick={handleSimulate} disabled={isSimulating || vacationDays <= 0}>
               {isSimulating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Simulando...
                 </>
-                ) : (
+              ) : (
                 <>
                   <Calculator className="mr-2 h-4 w-4" />
                   Simular Cálculo
@@ -233,23 +233,23 @@ export default function RequestVacationDialog({ employee }: RequestVacationDialo
               )}
             </Button>
           </div>
-          
+
           <div className="space-y-4">
             {calculation ? (
               <Alert>
-                <Calculator className="h-4 w-4"/>
+                <Calculator className="h-4 w-4" />
                 <AlertTitle>Simulação de Valores</AlertTitle>
                 <AlertDescription>
                   <div className="space-y-2 mt-2 text-sm">
                     <div className="flex justify-between"><span>Salário de Férias:</span> <span className="font-medium">{formatCurrency(calculation.grossVacation)}</span></div>
                     <div className="flex justify-between"><span>Adicional de 1/3:</span> <span className="font-medium">{formatCurrency(calculation.oneThird)}</span></div>
                     {calculation.abonoPecuniario > 0 && <div className="flex justify-between"><span>Abono Pecuniário:</span> <span className="font-medium">{formatCurrency(calculation.abonoPecuniario)}</span></div>}
-                    <hr className="my-2"/>
+                    <hr className="my-2" />
                     <div className="flex justify-between font-bold"><span>Total Bruto:</span> <span>{formatCurrency(calculation.totalGross)}</span></div>
-                    <hr className="my-2"/>
+                    <hr className="my-2" />
                     <div className="flex justify-between text-red-600"><span>- INSS (aprox.):</span> <span>{formatCurrency(calculation.inss)}</span></div>
                     <div className="flex justify-between text-red-600"><span>- IRRF (aprox.):</span> <span>{formatCurrency(calculation.irrf)}</span></div>
-                    <hr className="my-2"/>
+                    <hr className="my-2" />
                     <div className="flex justify-between font-bold text-lg"><span>Total Líquido (aprox.):</span> <span>{formatCurrency(calculation.totalNet)}</span></div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-4">Estes valores são uma simulação e podem variar no cálculo final da folha de pagamento.</p>

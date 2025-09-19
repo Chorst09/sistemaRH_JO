@@ -38,7 +38,7 @@ export default function TerminationResult({ calculation, employee, lastDay }: Te
                     <div className="space-y-4 my-4 hidden print:grid print:grid-cols-2 print:gap-x-8 print:gap-y-4 print:mb-6">
                         <div><span className="font-semibold">Funcionário(a):</span> {employee.name}</div>
                         <div><span className="font-semibold">Cargo:</span> {employee.role}</div>
-                        <div><span className="font-semibold">Data de Admissão:</span> {new Date(employee.hireDate).toLocaleDateString('pt-BR')}</div>
+                        <div><span className="font-semibold">Data de Admissão:</span> {new Date(employee.admission_date).toLocaleDateString('pt-BR')}</div>
                         <div><span className="font-semibold">Data de Desligamento:</span> {lastDay.toLocaleDateString('pt-BR')}</div>
                     </div>
                     <div className="space-y-2 mt-2 text-sm">

@@ -23,9 +23,10 @@ import { getEmployee } from '@/lib/data';
 import { PlusCircle, CheckCircle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Employee } from '@/types';
-import { supabase } from '@/lib/supabase';
+import type { Database } from '@/types/supabase';
+import { createClient } from '@/lib/supabase-client';
 
-type AbsenceRequest = {
+type DatabaseAbsenceRequest = {
   id: string;
   employee_id: string;
   start_date: string;
@@ -38,11 +39,13 @@ type AbsenceRequest = {
 
 export default function AbsencePage() {
   const [currentUser, setCurrentUser] = useState<Employee | null>(null);
-  const [myAbsenceRequests, setMyAbsenceRequests] = useState<AbsenceRequest[]>([]);
-  const [teamAbsenceRequests, setTeamAbsenceRequests] = useState<AbsenceRequest[]>([]);
+  const [myAbsenceRequests, setMyAbsenceRequests] = useState<DatabaseAbsenceRequest[]>([]);
+  const [teamAbsenceRequests, setTeamAbsenceRequests] = useState<DatabaseAbsenceRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [employeeNames, setEmployeeNames] = useState<Record<string, string>>({});
+  
+  const supabase = createClient();
 
   useEffect(() => {
     async function loadData() {
@@ -99,11 +102,12 @@ export default function AbsencePage() {
             .order('created_at', { ascending: false });
 
           if (teamRequestsError) throw teamRequestsError;
-          setTeamAbsenceRequests(teamRequests || []);
+          const typedTeamRequests = (teamRequests || []) as DatabaseAbsenceRequest[];
+          setTeamAbsenceRequests(typedTeamRequests);
 
           // Buscar nomes dos funcionários para as solicitações da equipe
-          if (teamRequests) {
-            const employeeIds = [...new Set(teamRequests.map(r => r.employee_id))];
+          if (typedTeamRequests && typedTeamRequests.length > 0) {
+            const employeeIds = [...new Set(typedTeamRequests.map(r => r.employee_id))];
             const { data: employees, error: employeesError } = await supabase
               .from('employees')
               .select('id, name')
@@ -112,7 +116,8 @@ export default function AbsencePage() {
             if (employeesError) throw employeesError;
             
             const namesMap: Record<string, string> = {};
-            employees?.forEach(emp => {
+            const typedEmployees = employees as Array<{id: string, name: string}> | null;
+            typedEmployees?.forEach(emp => {
               namesMap[emp.id] = emp.name;
             });
             setEmployeeNames(namesMap);
@@ -155,7 +160,7 @@ export default function AbsencePage() {
 
   const handleApproveRequest = async (requestId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('absence_requests')
         .update({ status: 'approved' })
         .eq('id', requestId);
@@ -174,7 +179,7 @@ export default function AbsencePage() {
 
   const handleRejectRequest = async (requestId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('absence_requests')
         .update({ status: 'rejected' })
         .eq('id', requestId);

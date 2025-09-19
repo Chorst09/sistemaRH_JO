@@ -77,7 +77,7 @@ export default function VacationSimulator() {
 
     // Simulate API call and calculation
     setTimeout(() => {
-        const salary = selectedEmployee.salary / 12; // Assuming annual salary, get monthly
+        const salary = ((selectedEmployee as any).salary || 50000) / 12; // Assuming annual salary, get monthly
         const dailyRate = salary / 30;
         const grossVacation = dailyRate * vacationDays;
         const oneThird = grossVacation / 3;
@@ -132,7 +132,7 @@ export default function VacationSimulator() {
                                 <SelectValue placeholder={isLoading ? "Carregando..." : "Selecione um funcionário"} />
                             </SelectTrigger>
                             <SelectContent>
-                                {employees.filter(e => e.status === 'Ativo').map(e => (
+                                {employees.filter(e => e.status === 'active').map(e => (
                                     <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
                                 ))}
                             </SelectContent>
@@ -168,7 +168,7 @@ export default function VacationSimulator() {
                             <Calendar
                                 mode="range"
                                 selected={{ from: dateRange.from!, to: dateRange.to }}
-                                onSelect={(range) => setDateRange(range || { from: undefined, to: undefined })}
+                                onSelect={(range) => setDateRange(range ? { from: range.from, to: range.to } : { from: undefined, to: undefined })}
                                 numberOfMonths={2}
                                 locale={ptBR}
                             />

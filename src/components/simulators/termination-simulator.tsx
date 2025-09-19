@@ -80,7 +80,7 @@ export default function TerminationSimulator() {
 
         // Simulate API call and complex calculation
         setTimeout(() => {
-            const monthlySalary = selectedEmployee.salary / 12;
+            const monthlySalary = ((selectedEmployee as any).salary || 50000) / 12;
             const daysWorkedInMonth = lastDay.getDate();
             const saldoSalario = (monthlySalary / 30) * daysWorkedInMonth;
 

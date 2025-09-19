@@ -31,7 +31,7 @@ export default function OrgChartNode({ employeeId, employeeMap, childrenMap }: O
         <Card className="w-64 min-h-[7rem] hover:shadow-lg hover:border-primary transition-all duration-200">
           <CardContent className="p-4 flex items-center gap-4">
             <Avatar className="h-16 w-16">
-              <AvatarImage src={employee.avatar_url} />
+              <AvatarImage src={(employee as any).avatar_url || (employee as any).avatar || ''} />
               <AvatarFallback>{employee.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
             </Avatar>
             <div>

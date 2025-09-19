@@ -67,11 +67,14 @@ export default function DocumentSection({ employeeId }: DocumentSectionProps) {
 
           // Agora vamos salvar o documento
           const newDocument = {
-            name: file.name,
-            type: result.documentType,
-            uploadDate: new Date().toISOString(),
-            url: '#', // Aqui você deve implementar o upload real para o Supabase Storage
             employee_id: employeeId,
+            name: file.name,
+            description: `Documento do tipo ${result.documentType}`,
+            type: result.documentType,
+            url: '#', // Aqui você deve implementar o upload real para o Supabase Storage
+            status: 'active' as const,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           };
 
           const savedDocument = await createDocument(newDocument);
@@ -193,7 +196,7 @@ export default function DocumentSection({ employeeId }: DocumentSectionProps) {
                   </TableCell>
                   <TableCell>{doc.type}</TableCell>
                   <TableCell>
-                    {new Date(doc.uploadDate).toLocaleDateString('pt-BR', {
+                    {new Date(doc.created_at).toLocaleDateString('pt-BR', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',

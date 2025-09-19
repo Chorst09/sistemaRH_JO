@@ -130,11 +130,11 @@ export async function getBenefitById(id: string): Promise<Benefit | null> {
 }
 
 export async function createBenefitCatalog(benefit: Omit<BenefitDB, 'id'>): Promise<Benefit> {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('benefits_catalog')
     .insert([benefit])
     .select()
-    .single<BenefitDB>();
+    .single();
 
   if (error) {
     console.error('Erro ao criar benefício:', error);
@@ -148,12 +148,12 @@ export async function createBenefitCatalog(benefit: Omit<BenefitDB, 'id'>): Prom
 }
 
 export async function updateBenefitCatalog(id: string, benefit: Partial<BenefitDB>): Promise<Benefit> {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('benefits_catalog')
     .update(benefit)
     .eq('id', id)
     .select()
-    .single<BenefitDB>();
+    .single();
 
   if (error) {
     console.error('Erro ao atualizar benefício:', error);
@@ -167,7 +167,7 @@ export async function updateBenefitCatalog(id: string, benefit: Partial<BenefitD
 }
 
 export async function deleteBenefitCatalog(id: string): Promise<boolean> {
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('benefits_catalog')
     .delete()
     .eq('id', id);

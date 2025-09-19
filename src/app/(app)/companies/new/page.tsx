@@ -102,7 +102,7 @@ export default function NewCompanyPage() {
         cnpj: cnpj,
         taxRegime: taxRegime as 'Simples Nacional' | 'Lucro Presumido' | 'Lucro Real',
         status: status as 'Ativa' | 'Inativa',
-        address: address || null
+        address: address || undefined
       };
 
       // Criar empresa no banco de dados

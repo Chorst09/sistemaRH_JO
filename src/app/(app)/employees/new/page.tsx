@@ -29,7 +29,7 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getBenefitsCatalog, Benefit } from '@/lib/benefits-data';
 import { Checkbox } from '@/components/ui/checkbox';
-import { EmployeeBenefit } from '@/types';
+import { EmployeeBenefit } from '@/types/index';
 import { createEmployee } from '@/lib/data';
 
 export default function NewEmployeePage() {

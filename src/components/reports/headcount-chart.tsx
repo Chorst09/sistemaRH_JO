@@ -13,8 +13,8 @@ export default function HeadcountChart() {
     async function loadData() {
       try {
         const employees = await getEmployees();
-        const data = employees.reduce((acc, employee: Employee) => {
-          if (employee.status === 'Ativo') {
+        const data = employees.reduce((acc: Record<string, number>, employee: Employee) => {
+          if (employee.status === 'active') {
             acc[employee.department] = (acc[employee.department] || 0) + 1;
           }
           return acc;
@@ -23,7 +23,7 @@ export default function HeadcountChart() {
         setChartData(
           Object.entries(data).map(([name, total]) => ({
             name,
-            total,
+            total: total as number,
           }))
         );
       } catch (error) {

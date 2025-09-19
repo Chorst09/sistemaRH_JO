@@ -13,7 +13,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Employee, EmployeeBenefit } from '@/types';
+import { Employee } from '@/types';
+import { EmployeeBenefit } from '@/types/index';
 import { Benefit } from '@/lib/benefits-data';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
@@ -67,7 +68,7 @@ export default function ManageBenefitsDialog({
       setOpen(isOpen);
       if(isOpen) {
         // Deep copy to avoid modifying the original employee object
-        setSelectedBenefits(JSON.parse(JSON.stringify(employee.benefits)));
+        setSelectedBenefits(JSON.parse(JSON.stringify((employee as any).benefits || [])));
       }
     }}>
       <DialogTrigger asChild>{children}</DialogTrigger>

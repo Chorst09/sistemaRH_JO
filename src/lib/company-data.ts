@@ -79,7 +79,7 @@ export async function getCompanies(): Promise<Company[]> {
   try {
     console.log('=== BUSCANDO EMPRESAS ===');
     
-    const { data: companies, error } = await supabase
+    const { data: companies, error } = await (supabase as any)
       .from('companies')
       .select('*')
       .order('name');
@@ -146,7 +146,7 @@ export async function getCompanies(): Promise<Company[]> {
 }
 
 export async function getCompany(id: string): Promise<Company | null> {
-  const { data: company, error } = await supabase
+  const { data: company, error } = await (supabase as any)
     .from('companies')
     .select('*')
     .eq('id', id)
@@ -218,7 +218,7 @@ export async function createCompany(company: Omit<Company, 'id'>): Promise<Compa
     
     console.log('Enviando para Supabase...');
     
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('companies')
       .insert([companyForDB])
       .select()
@@ -276,12 +276,12 @@ export async function updateCompany(id: string, company: Partial<Company>): Prom
       ...(company.address !== undefined && { address: company.address }),
     };
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('companies')
       .update(companyForDB)
       .eq('id', id)
       .select()
-      .single<Company>();
+      .single();
 
     if (error) {
       console.error('Erro ao atualizar empresa:', error);
@@ -296,7 +296,7 @@ export async function updateCompany(id: string, company: Partial<Company>): Prom
 }
 
 export async function deleteCompany(id: string): Promise<boolean> {
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('companies')
     .delete()
     .eq('id', id);

@@ -188,7 +188,7 @@ export async function createEmployee(employeeData: any, benefits?: any[]) {
     }
     
     // Mapear os dados para o formato do banco
-    const employeeForDB: any = {
+    const employeeForDB: EmployeeInsert = {
       name: employeeWithoutBenefits.name,
       email: employeeWithoutBenefits.email,
       role: employeeWithoutBenefits.role,
@@ -244,7 +244,7 @@ export async function createEmployee(employeeData: any, benefits?: any[]) {
 
       console.log('Inserindo benefícios:', benefitsForDB);
 
-      const { error: benefitsError } = await (supabase as any)
+      const { error: benefitsError } = await supabase
         .from('benefits')
         .insert(benefitsForDB);
 
@@ -263,11 +263,11 @@ export async function createEmployee(employeeData: any, benefits?: any[]) {
 }
 
 export async function updateEmployee(id: string, employee: Partial<Employee>) {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('employees')
     .update(employee)
     .eq('id', id)
-    .returns()
+    .returns<Employee>()
     .single();
 
   if (error) {
@@ -278,7 +278,7 @@ export async function updateEmployee(id: string, employee: Partial<Employee>) {
 }
 
 export async function deleteEmployee(id: string) {
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('employees')
     .delete()
     .eq('id', id);
@@ -291,10 +291,10 @@ export async function deleteEmployee(id: string) {
 }
 
 export async function getBenefits(employeeId: string) {
-  const { data: benefits, error } = await (supabase as any)
+  const { data: benefits, error } = await supabase
     .from('benefits')
     .select('*')
-    .returns()
+    .returns<Benefit[]>()
     .eq('employee_id', employeeId);
 
   if (error) {
@@ -305,10 +305,10 @@ export async function getBenefits(employeeId: string) {
 }
 
 export async function createBenefit(benefit: Omit<Benefit, 'id'>) {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('benefits')
     .insert([benefit])
-    .returns()
+    .returns<Benefit>()
     .single();
 
   if (error) {
@@ -319,11 +319,11 @@ export async function createBenefit(benefit: Omit<Benefit, 'id'>) {
 }
 
 export async function updateBenefit(id: string, benefit: Partial<Benefit>) {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('benefits')
     .update(benefit)
     .eq('id', id)
-    .returns()
+    .returns<Benefit>()
     .single();
 
   if (error) {
@@ -334,7 +334,7 @@ export async function updateBenefit(id: string, benefit: Partial<Benefit>) {
 }
 
 export async function deleteBenefit(id: string) {
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('benefits')
     .delete()
     .eq('id', id);
@@ -347,10 +347,10 @@ export async function deleteBenefit(id: string) {
 }
 
 export async function getDocuments(employeeId: string) {
-  const { data: documents, error } = await (supabase as any)
+  const { data: documents, error } = await supabase
     .from('documents')
     .select('*')
-    .returns()
+    .returns<Document[]>()
     .eq('employee_id', employeeId);
 
   if (error) {
@@ -361,10 +361,10 @@ export async function getDocuments(employeeId: string) {
 }
 
 export async function createDocument(document: Omit<Document, 'id'>) {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('documents')
     .insert([document])
-    .returns()
+    .returns<Document>()
     .single();
 
   if (error) {
@@ -375,11 +375,11 @@ export async function createDocument(document: Omit<Document, 'id'>) {
 }
 
 export async function updateDocument(id: string, document: Partial<Document>) {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('documents')
     .update(document)
     .eq('id', id)
-    .returns()
+    .returns<Document>()
     .single();
 
   if (error) {
@@ -390,7 +390,7 @@ export async function updateDocument(id: string, document: Partial<Document>) {
 }
 
 export async function deleteDocument(id: string) {
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('documents')
     .delete()
     .eq('id', id);
@@ -403,10 +403,10 @@ export async function deleteDocument(id: string) {
 }
 
 export async function getPayslips(employeeId: string) {
-  const { data: payslips, error } = await (supabase as any)
+  const { data: payslips, error } = await supabase
     .from('payslips')
     .select('*')
-    .returns()
+    .returns<Payslip[]>()
     .eq('employee_id', employeeId)
     .order('payment_date', { ascending: false });
 
@@ -418,10 +418,10 @@ export async function getPayslips(employeeId: string) {
 }
 
 export async function getPayslip(id: string) {
-  const { data: payslip, error } = await (supabase as any)
+  const { data: payslip, error } = await supabase
     .from('payslips')
     .select('*')
-    .returns()
+    .returns<Payslip>()
     .eq('id', id)
     .single();
 
@@ -433,10 +433,10 @@ export async function getPayslip(id: string) {
 }
 
 export async function createPayslip(payslip: Omit<Payslip, 'id'>) {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('payslips')
     .insert([payslip])
-    .returns()
+    .returns<Payslip>()
     .single();
 
   if (error) {
@@ -447,11 +447,11 @@ export async function createPayslip(payslip: Omit<Payslip, 'id'>) {
 }
 
 export async function updatePayslip(id: string, payslip: Partial<Payslip>) {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('payslips')
     .update(payslip)
     .eq('id', id)
-    .returns()
+    .returns<Payslip>()
     .single();
 
   if (error) {
@@ -462,7 +462,7 @@ export async function updatePayslip(id: string, payslip: Partial<Payslip>) {
 }
 
 export async function deletePayslip(id: string) {
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('payslips')
     .delete()
     .eq('id', id);

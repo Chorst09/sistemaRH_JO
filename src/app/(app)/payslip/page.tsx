@@ -50,16 +50,16 @@ export default function PayslipPage() {
              email: employee.email,
              role: employee.role,
              department: employee.department,
-             status: employee.status,
-             managerId: employee.managerid,
-             hireDate: employee.hiredate,
-             salary: employee.salary,
+             admission_date: employee.hiredate || employee.created_at,
+             birth_date: employee.birth_date || '1990-01-01',
              phone: employee.phone || '',
              address: employee.address || '',
-             bank: employee.bank || '',
-             bankAgency: employee.bankagency || '',
-             bankAccount: employee.bankaccount || '',
-             benefits: []
+             city: employee.city || 'São Paulo',
+             state: employee.state || 'SP',
+             zip_code: employee.zip_code || '00000-000',
+             status: employee.status === 'Ativo' ? 'active' : 'inactive' as 'active' | 'inactive',
+             created_at: employee.created_at,
+             updated_at: employee.updated_at
            };
           setCurrentUser(mappedEmployee);
 

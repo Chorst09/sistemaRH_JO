@@ -18,7 +18,7 @@ export async function testCompanyCreation() {
   console.log('Teste com ambas as colunas:', testCompany);
   
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('companies')
       .insert([testCompany])
       .select()
@@ -38,7 +38,7 @@ export async function testCompanyCreation() {
       
       console.log('Teste apenas com tax_regime:', testCompany2);
       
-      const { data: data2, error: error2 } = await supabase
+      const { data: data2, error: error2 } = await (supabase as any)
         .from('companies')
         .insert([testCompany2])
         .select()
@@ -58,7 +58,7 @@ export async function testCompanyCreation() {
         
         console.log('Teste apenas com taxregime:', testCompany3);
         
-        const { data: data3, error: error3 } = await supabase
+        const { data: data3, error: error3 } = await (supabase as any)
           .from('companies')
           .insert([testCompany3])
           .select()

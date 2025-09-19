@@ -7,7 +7,7 @@ import { getBenefitsCatalog, Benefit } from '@/lib/benefits-data';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { EmployeeBenefit } from '@/types';
+import { EmployeeBenefit } from '@/types/index';
 
 export function BenefitsDebug() {
   const [allBenefits, setAllBenefits] = useState<Benefit[]>([]);
@@ -32,7 +32,7 @@ export function BenefitsDebug() {
         });
       } catch (error) {
         console.error('Erro ao carregar benefícios:', error);
-        setDebugInfo({ error: error.message });
+        setDebugInfo({ error: error instanceof Error ? error.message : 'Erro desconhecido' });
       } finally {
         setIsLoading(false);
       }

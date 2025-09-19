@@ -99,7 +99,7 @@ export default function EmployeesPage() {
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar className="hidden h-9 w-9 sm:flex">
-                      <AvatarImage src={employee.avatar} alt={employee.name} />
+                      <AvatarImage src={(employee as any).avatar || ''} alt={employee.name} />
                       <AvatarFallback>
                         {employee.name.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
@@ -119,17 +119,15 @@ export default function EmployeesPage() {
                     className={cn(
                       'capitalize',
                       employee.status === 'active' && 'bg-green-100 dark:bg-green-900/50 border-green-300 dark:border-green-800',
-                      employee.status === 'on_leave' && 'bg-yellow-100 dark:bg-yellow-900/50 border-yellow-300 dark:border-yellow-800',
-                      employee.status === 'terminated' && 'bg-red-100 dark:bg-red-900/50 border-red-300 dark:border-red-800',
+                      employee.status === 'inactive' && 'bg-red-100 dark:bg-red-900/50 border-red-300 dark:border-red-800',
                     )}
                   >
                     {employee.status === 'active' && 'Ativo'}
-                    {employee.status === 'on_leave' && 'De Licença'}
-                    {employee.status === 'terminated' && 'Demitido'}
+                    {employee.status === 'inactive' && 'Inativo'}
                   </Badge>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                  {new Date(employee.hireDate).toLocaleDateString('pt-BR', {
+                  {new Date(employee.admission_date).toLocaleDateString('pt-BR', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',

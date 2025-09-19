@@ -51,15 +51,16 @@ export default function OrganizationPage() {
   const childrenMap = new Map<string, string[]>();
 
   employees.forEach(e => {
-    if (e.manager_id) {
-      if (!childrenMap.has(e.manager_id)) {
-        childrenMap.set(e.manager_id, []);
+    const managerId = (e as any).manager_id || (e as any).managerId;
+    if (managerId) {
+      if (!childrenMap.has(managerId)) {
+        childrenMap.set(managerId, []);
       }
-      childrenMap.get(e.manager_id)!.push(e.id);
+      childrenMap.get(managerId)!.push(e.id);
     }
   });
 
-  const rootEmployee = employees.find(e => !e.manager_id);
+  const rootEmployee = employees.find(e => !(e as any).manager_id && !(e as any).managerId);
 
   return (
     <Card>

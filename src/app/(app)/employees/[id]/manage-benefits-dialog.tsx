@@ -13,8 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { getBenefits } from '@/lib/data';
-import { Benefit } from '@/types';
+import { getBenefitsCatalog, Benefit } from '@/lib/benefits-data';
 
 interface ManageBenefitsDialogProps {
   selectedBenefits: string[];
@@ -31,7 +30,7 @@ export function ManageBenefitsDialog({
 
   useEffect(() => {
     async function loadBenefits() {
-      const data = await getBenefits();
+      const data = await getBenefitsCatalog();
       setBenefits(data);
     }
 

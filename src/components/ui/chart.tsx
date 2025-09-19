@@ -273,5 +273,4 @@ export {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  type ChartConfig,
 }
