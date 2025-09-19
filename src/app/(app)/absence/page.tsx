@@ -79,7 +79,7 @@ export default function AbsencePage() {
 
           // Buscar nomes dos funcionários para as solicitações da equipe
           if (typedTeamRequests && typedTeamRequests.length > 0) {
-            const employeeIds = [...new Set((typedTeamRequests as any[]).map(r => r.employee_id))];
+            const employeeIds = [...new Set(typedTeamRequests.map(r => r.employee_id))];
             const { data: employees, error: employeesError } = await supabase
               .from('employees')
               .select('id, name')
@@ -233,7 +233,7 @@ export default function AbsencePage() {
                     <TableCell>{request.type}</TableCell>
                     <TableCell>{new Date(request.start_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
                     <TableCell>{new Date(request.end_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
-                    <TableCell>{statusBadge(request.status)}</TableCell>
+                    <TableCell>{statusBadge(request.status as 'pending' | 'approved' | 'rejected')}</TableCell>
                   </TableRow>
                 )) : (
                   <TableRow>

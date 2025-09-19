@@ -24,17 +24,9 @@ import { cn } from '@/lib/utils';
 import RequestVacationDialog from '@/components/absence/request-vacation-dialog';
 import { Employee } from '@/types';
 import { supabase } from '@/lib/supabase';
+import type { Database } from '@/types/supabase';
 
-type VacationRequest = {
-  id: string;
-  employee_id: string;
-  start_date: string;
-  end_date: string;
-  status: 'pending' | 'approved' | 'rejected';
-  type: 'vacation';
-  created_at: string;
-  updated_at: string;
-};
+type VacationRequest = Database['public']['Tables']['vacation_requests']['Row'];
 
 export default function VacationPage() {
   const [currentUser, setCurrentUser] = useState<Employee | null>(null);
@@ -224,7 +216,7 @@ export default function VacationPage() {
                     <TableCell>Férias</TableCell>
                     <TableCell>{new Date(request.start_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
                     <TableCell>{new Date(request.end_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
-                    <TableCell>{statusBadge(request.status)}</TableCell>
+                    <TableCell>{statusBadge(request.status as 'pending' | 'approved' | 'rejected')}</TableCell>
                   </TableRow>
                 )) : (
                   <TableRow>

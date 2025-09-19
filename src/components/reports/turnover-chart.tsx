@@ -17,17 +17,28 @@ export default function TurnoverChart() {
   useEffect(() => {
     async function loadData() {
       try {
-        const { data: turnoverData, error } = await supabase
-          .from('turnover_rates')
-          .select('month, rate')
-          .order('month', { ascending: true });
+        // TODO: Criar tabela turnover_rates no banco de dados
+        // const { data: turnoverData, error } = await supabase
+        //   .from('turnover_rates')
+        //   .select('month, rate')
+        //   .order('month', { ascending: true });
 
-        if (error) {
-          console.error('Erro ao carregar dados de turnover:', error);
-          return;
-        }
+        // if (error) {
+        //   console.error('Erro ao carregar dados de turnover:', error);
+        //   return;
+        // }
 
-        setChartData(turnoverData);
+        // setChartData(turnoverData);
+        
+        // Dados mockados temporariamente
+        setChartData([
+          { month: 'Jan', rate: 5.2 },
+          { month: 'Fev', rate: 4.8 },
+          { month: 'Mar', rate: 6.1 },
+          { month: 'Abr', rate: 5.5 },
+          { month: 'Mai', rate: 4.9 },
+          { month: 'Jun', rate: 5.8 }
+        ]);
       } catch (error) {
         console.error('Erro ao processar dados de turnover:', error);
       } finally {
