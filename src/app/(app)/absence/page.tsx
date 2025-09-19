@@ -22,25 +22,16 @@ import { Badge } from '@/components/ui/badge';
 import { getEmployee } from '@/lib/data';
 import { PlusCircle, CheckCircle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Employee } from '@/types';
 import type { Database } from '@/types/supabase';
 import { createClient } from '@/lib/supabase-client';
 
-type DatabaseAbsenceRequest = {
-  id: string;
-  employee_id: string;
-  start_date: string;
-  end_date: string;
-  status: 'pending' | 'approved' | 'rejected';
-  type: string;
-  created_at: string;
-  updated_at: string;
-};
+type AbsenceRequest = Database['public']['Tables']['absence_requests']['Row'];
+type Employee = Database['public']['Tables']['employees']['Row'];
 
 export default function AbsencePage() {
   const [currentUser, setCurrentUser] = useState<Employee | null>(null);
-  const [myAbsenceRequests, setMyAbsenceRequests] = useState<DatabaseAbsenceRequest[]>([]);
-  const [teamAbsenceRequests, setTeamAbsenceRequests] = useState<DatabaseAbsenceRequest[]>([]);
+  const [myAbsenceRequests, setMyAbsenceRequests] = useState<AbsenceRequest[]>([]);
+  const [teamAbsenceRequests, setTeamAbsenceRequests] = useState<AbsenceRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [employeeNames, setEmployeeNames] = useState<Record<string, string>>({});
@@ -59,27 +50,8 @@ export default function AbsencePage() {
         if (employeesError) throw employeesError;
 
         if (employees && employees.length > 0) {
-          const employee = employees[0] as any;
-          // Mapear os dados para o formato esperado
-           const mappedEmployee = {
-             id: employee.id,
-             name: employee.name,
-             email: employee.email,
-             role: employee.role,
-             department: employee.department,
-             status: employee.status,
-             avatar: employee.avatar || '',
-             managerId: employee.managerid,
-             hireDate: employee.hiredate,
-             salary: employee.salary,
-             phone: employee.phone || '',
-             address: employee.address || '',
-             bank: employee.bank || '',
-             bankAgency: employee.bankagency || '',
-             bankAccount: employee.bankaccount || '',
-             benefits: []
-           } as unknown as Employee;
-          setCurrentUser(mappedEmployee);
+          const employee = employees[0] as Employee;
+          setCurrentUser(employee);
 
           // Buscar as solicitações de ausência do usuário
           const { data: myRequests, error: myRequestsError } = await supabase
@@ -102,7 +74,7 @@ export default function AbsencePage() {
             .order('created_at', { ascending: false });
 
           if (teamRequestsError) throw teamRequestsError;
-          const typedTeamRequests = (teamRequests || []) as DatabaseAbsenceRequest[];
+          const typedTeamRequests = (teamRequests || []) as AbsenceRequest[];
           setTeamAbsenceRequests(typedTeamRequests);
 
           // Buscar nomes dos funcionários para as solicitações da equipe
@@ -116,8 +88,7 @@ export default function AbsencePage() {
             if (employeesError) throw employeesError;
             
             const namesMap: Record<string, string> = {};
-            const typedEmployees = employees as Array<{id: string, name: string}> | null;
-            typedEmployees?.forEach(emp => {
+            (employees as { id: string; name: string }[])?.forEach(emp => {
               namesMap[emp.id] = emp.name;
             });
             setEmployeeNames(namesMap);
