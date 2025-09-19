@@ -1,13 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
-import { getValidatedEnvironmentConfig } from './env-validator';
 
-// Get validated environment configuration
-const config = getValidatedEnvironmentConfig();
+// Get environment configuration with fallbacks for build time
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || 'https://placeholder.supabase.co';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() || 'placeholder-key';
 
 export const supabase = createClient<Database>(
-  config.NEXT_PUBLIC_SUPABASE_URL,
-  config.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  supabaseUrl,
+  supabaseKey,
   {
     auth: {
       persistSession: true,

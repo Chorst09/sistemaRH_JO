@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/hooks/use-auth';
 import {
   Card,
   CardContent,
@@ -40,6 +41,7 @@ type MonthlyTotal = {
 };
 
 export default function AdminPayslipPage() {
+  const { user, loading: authLoading } = useAuth();
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | undefined>();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [payslips, setPayslips] = useState<Payslip[]>([]);
@@ -48,6 +50,9 @@ export default function AdminPayslipPage() {
 
   useEffect(() => {
     async function loadEmployees() {
+      // Only load if user is authenticated
+      if (authLoading || !user) return;
+      
       try {
         const employeesList = await getEmployees();
         setEmployees(employeesList);
@@ -60,7 +65,7 @@ export default function AdminPayslipPage() {
     }
 
     loadEmployees();
-  }, []);
+  }, [user, authLoading]);
 
   useEffect(() => {
     async function loadPayslips() {
@@ -111,11 +116,23 @@ export default function AdminPayslipPage() {
         .sort((a,b) => new Date(b.payment_date).getTime() - new Date(a.payment_date).getTime()) 
     : [];
 
-  if (isLoading) {
+  // Show loading while checking auth or loading data
+  if (authLoading || (isLoading && user)) {
     return (
       <Card>
         <CardContent className="h-24 flex items-center justify-center">
           <p className="text-muted-foreground">Carregando...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show login message if not authenticated
+  if (!user) {
+    return (
+      <Card>
+        <CardContent className="h-24 flex items-center justify-center">
+          <p className="text-muted-foreground">Você precisa estar logado para acessar esta página.</p>
         </CardContent>
       </Card>
     );

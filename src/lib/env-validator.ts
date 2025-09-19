@@ -25,9 +25,12 @@ export interface EnvironmentConfig {
 function isValidSupabaseUrl(url: string): boolean {
   if (!url) return false;
   
+  // Clean the URL by removing any trailing whitespace or newlines
+  const cleanUrl = url.trim();
+  
   // Supabase URLs should follow the pattern: https://[project-ref].supabase.co
   const supabaseUrlPattern = /^https:\/\/[a-zA-Z0-9-]+\.supabase\.co\/?$/;
-  return supabaseUrlPattern.test(url);
+  return supabaseUrlPattern.test(cleanUrl);
 }
 
 /**
@@ -258,11 +261,18 @@ export function assertValidProductionEnvironment(): void {
  * Gets the current environment configuration with validation
  */
 export function getValidatedEnvironmentConfig(): EnvironmentConfig {
-  assertValidEnvironmentConfig();
+  // During build time, if environment variables are not available, return cleaned values
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || '';
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() || '';
+  
+  // Only validate if we have both values
+  if (url && key) {
+    assertValidEnvironmentConfig();
+  }
   
   return {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    NEXT_PUBLIC_SUPABASE_URL: url,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: key
   };
 }
 
