@@ -108,11 +108,11 @@ export async function getBenefitsCatalog(): Promise<Benefit[]> {
 }
 
 export async function getBenefitById(id: string): Promise<Benefit | null> {
-  const { data: benefit, error } = await supabase
+  const { data: benefit, error } = await (supabase as any)
     .from('benefits_catalog')
     .select('*')
     .eq('id', id)
-    .single<BenefitDB>();
+    .single();
 
   if (error) {
     console.error('Erro ao buscar benefício:', error);

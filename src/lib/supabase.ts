@@ -26,8 +26,7 @@ export const supabase = createClient<Database>(
       },
     },
     realtime: {
-      // Configuração para desabilitar WebSocket no Edge Runtime
-      endpoint: undefined,
+      // Configuração para WebSocket
     },
   }
 );

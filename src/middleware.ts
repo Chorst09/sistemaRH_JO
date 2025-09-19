@@ -27,13 +27,7 @@ export async function middleware(request: NextRequest) {
           });
         },
         remove(name: string, options: CookieOptions) {
-          response.cookies.delete(name, {
-            domain: options.domain,
-            path: options.path,
-            httpOnly: options.httpOnly,
-            sameSite: options.sameSite,
-            secure: options.secure,
-          });
+          response.cookies.delete(name);
         },
       },
     }

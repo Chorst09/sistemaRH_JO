@@ -25,7 +25,7 @@ export default function AbsenceChart() {
           return;
         }
 
-        const absenceData = absenceRequests.reduce((acc, request: AbsenceRequest) => {
+        const absenceData = (absenceRequests || []).reduce((acc, request: any) => {
           acc[request.type] = (acc[request.type] || 0) + 1;
           return acc;
         }, {} as Record<string, number>);
