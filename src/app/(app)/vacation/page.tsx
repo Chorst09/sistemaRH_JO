@@ -7,15 +7,16 @@ import { Badge } from '@/components/ui/badge';
 import { CalendarClock, Plane } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Employee } from '@/types';
-import { RequestVacationDialog } from '@/components/absence/request-vacation-dialog';
+import RequestVacationDialog from '@/components/absence/request-vacation-dialog';
 import { supabase } from '@/lib/supabase';
+import { Database } from '@/types/supabase';
 
 type VacationRequest = {
   id: string;
   employee_id: string;
   start_date: string;
   end_date: string;
-  status: string;
+  status: 'pending' | 'approved' | 'rejected';
   type: string | null;
   days_requested: number;
   reason: string | null;
@@ -67,11 +68,18 @@ export default function VacationPage() {
             .from('vacation_requests')
             .select('*')
             .eq('employee_id', employee.id)
-            .is('type', null) // Alterado para usar is null em vez de eq
+            .is('type', null)
             .order('created_at', { ascending: false });
 
           if (requestsError) throw requestsError;
-          setVacationRequests(requests || []);
+          
+          // Converter os dados para o tipo VacationRequest
+          const typedRequests = (requests || []).map((request: any) => ({
+            ...request,
+            status: ['pending', 'approved', 'rejected'].includes(request.status) ? request.status : 'pending',
+          })) as VacationRequest[];
+          
+          setVacationRequests(typedRequests);
         } else {
           setError('Nenhum funcionário encontrado. Execute a migração do banco de dados.');
         }
@@ -211,7 +219,7 @@ export default function VacationPage() {
                     <TableCell>Férias</TableCell>
                     <TableCell>{new Date(request.start_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
                     <TableCell>{new Date(request.end_date).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</TableCell>
-                    <TableCell>{statusBadge(request.status as 'pending' | 'approved' | 'rejected')}</TableCell>
+                    <TableCell>{statusBadge(request.status)}</TableCell>
                   </TableRow>
                 )) : (
                   <TableRow>
