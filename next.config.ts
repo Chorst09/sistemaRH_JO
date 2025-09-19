@@ -62,4 +62,27 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Configurações para otimizar o build e compatibilidade
+  webpack: (config, { isServer }) => {
+    // Ignorar avisos do handlebars
+    config.module.rules.push({
+      test: /node_modules\/handlebars\/lib\/index\.js$/,
+      loader: 'null-loader',
+    });
+
+    // Otimizações para o Edge Runtime
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+      };
+    }
+
+    return config;
+  },
+  // Desabilitar telemetria do Next.js
+  telemetry: false,
 };
