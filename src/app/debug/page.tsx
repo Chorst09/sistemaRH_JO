@@ -18,7 +18,7 @@ export default function DebugPage() {
         hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
         keyPrefix: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.substring(0, 20)
       },
-      tests: {}
+      tests: {} as any
     };
 
     // Teste 1: Conexão básica
