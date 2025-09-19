@@ -1,32 +1,27 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription
-} from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { getEmployee } from '@/lib/data';
-import { PlusCircle, CalendarClock, Plane } from 'lucide-react';
+import { CalendarClock, Plane } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import RequestVacationDialog from '@/components/absence/request-vacation-dialog';
 import { Employee } from '@/types';
+import { RequestVacationDialog } from '@/components/absence/request-vacation-dialog';
 import { supabase } from '@/lib/supabase';
-import type { Database } from '@/types/supabase';
 
-type VacationRequest = Database['public']['Tables']['vacation_requests']['Row'];
+type VacationRequest = {
+  id: string;
+  employee_id: string;
+  start_date: string;
+  end_date: string;
+  status: string;
+  type: string | null;
+  days_requested: number;
+  reason: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
 
 export default function VacationPage() {
   const [currentUser, setCurrentUser] = useState<Employee | null>(null);
@@ -72,7 +67,7 @@ export default function VacationPage() {
             .from('vacation_requests')
             .select('*')
             .eq('employee_id', employee.id)
-            .eq('type', 'vacation')
+            .is('type', null) // Alterado para usar is null em vez de eq
             .order('created_at', { ascending: false });
 
           if (requestsError) throw requestsError;
