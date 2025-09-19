@@ -137,11 +137,19 @@ export default function NewCompanyPage() {
         router.push('/companies');
       }, 500);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao criar empresa:', error);
+      
+      // Extrair mensagem de erro específica
+      let errorMessage = "Ocorreu um erro ao salvar a empresa. Tente novamente.";
+      
+      if (error?.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Erro ao criar empresa",
-        description: "Ocorreu um erro ao salvar a empresa. Tente novamente.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

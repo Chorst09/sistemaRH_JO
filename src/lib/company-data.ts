@@ -224,6 +224,26 @@ export async function createCompany(company: Omit<Company, 'id'>): Promise<Compa
       console.error('Status inválido:', status);
       throw new Error(`Status inválido. Deve ser um dos: ${validStatuses.join(', ')}`);
     }
+
+    // Verificar se já existe uma empresa com este CNPJ
+    console.log('Verificando se CNPJ já existe...');
+    const { data: existingCompany, error: checkError } = await supabase
+      .from('companies')
+      .select('id, name, cnpj')
+      .eq('cnpj', cnpj)
+      .single();
+
+    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows found (esperado)
+      console.error('Erro ao verificar CNPJ existente:', checkError);
+      // Continuar mesmo com erro de verificação
+    }
+
+    if (existingCompany) {
+      console.error('CNPJ já existe:', existingCompany);
+      throw new Error(`Já existe uma empresa cadastrada com este CNPJ: ${existingCompany.name}`);
+    }
+
+    console.log('CNPJ disponível para uso');
     
     // Mapear os dados para o formato do banco com validação extra
     // IMPORTANTE: Enviando para AMBAS as colunas para garantir compatibilidade
@@ -278,6 +298,19 @@ export async function createCompany(company: Omit<Company, 'id'>): Promise<Compa
       // Verificar se é erro de autenticação
       if (error.code === '42501' || error.message.includes('permission denied')) {
         throw new Error('Você não tem permissão para criar empresas. Verifique se está logado corretamente.');
+      }
+
+      // Verificar se é erro de CNPJ duplicado
+      if (error.message.includes('duplicate key value') && error.message.includes('cnpj')) {
+        throw new Error('Já existe uma empresa cadastrada com este CNPJ. Verifique o número e tente novamente.');
+      }
+
+      // Verificar se é erro de constraint única
+      if (error.code === '23505') {
+        if (error.message.includes('cnpj')) {
+          throw new Error('Este CNPJ já está cadastrado no sistema.');
+        }
+        throw new Error('Dados duplicados. Verifique as informações e tente novamente.');
       }
       
       throw new Error(`Erro ao criar empresa: ${error.message}`);

@@ -119,6 +119,12 @@ node scripts/test-company-creation.js
 
 # Teste específico de políticas RLS
 node scripts/test-rls-policies.js
+
+# Gerar CNPJs únicos para teste
+node scripts/generate-unique-cnpj.js
+
+# Limpar empresas de teste duplicadas
+node scripts/clean-test-companies.js
 ```
 
 ## 📋 Checklist de Verificação
@@ -138,6 +144,12 @@ node scripts/test-rls-policies.js
 ### Erro: "Usuário não autenticado"
 - **Causa**: Sessão expirou ou usuário não fez login
 - **Solução**: Faça login novamente
+
+### Erro: "duplicate key value violates unique constraint"
+- **Causa**: CNPJ já existe no banco de dados
+- **Solução**: Use um CNPJ diferente ou limpe dados de teste
+- **CNPJs para teste**: Execute `node scripts/generate-unique-cnpj.js`
+- **Limpar duplicatas**: Execute `node scripts/clean-test-companies.js`
 
 ### Debug mostra inconsistências
 - **Causa**: Problemas de sincronização de sessão
