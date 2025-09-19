@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+import { LoginDebug } from '@/components/debug/login-debug';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -121,6 +122,11 @@ export default function LoginPage() {
           </form>
         </CardContent>
       </Card>
+      
+      {/* Componente de Debug - Remover em produção */}
+      <div className="mt-8">
+        <LoginDebug />
+      </div>
     </div>
   );
 }
